@@ -1,8 +1,8 @@
-# 🔍 Smart Code Vulnerability Triage System
-
+# 🔍 Vulnscanner
 A comprehensive static analysis tool that automatically detects, scores, and prioritizes security vulnerabilities in Python and JavaScript code using regex patterns, AST analysis, and optional AI integration.
+<img width="1280" height="709" alt="image" src="https://github.com/user-attachments/assets/c77f28ab-c414-48ab-b8ba-9ffada4aac91" />
 
-## 🌟 Features
+## 🌟 **Features**
 
 - **Multi-language Support**: Python and JavaScript vulnerability detection
 - **Dual Analysis Engine**: Regex pattern matching + AST-based deep analysis
@@ -11,9 +11,9 @@ A comprehensive static analysis tool that automatically detects, scores, and pri
 - **Rich Reporting**: JSON and HTML report generation with detailed findings
 - **Hackathon-Ready**: Modular design, easy setup, and demo-friendly output
 
-## 🚀 Quick Start
+## 🚀 **Quick Start**
 
-### Prerequisites
+### **Prerequisites**
 - Python 3.8+
 - pip package manager
 
@@ -35,22 +35,22 @@ python main.py --scan ./samples/ --ai
 # Generate detailed HTML report
 python main.py --scan ./samples/ --report-format html
 ```
-###🛠️ How It Works
-Detection Methods
-Regex Pattern Matching: Fast pattern detection for common vulnerabilities
-AST Analysis: Deep code structure analysis for complex vulnerabilities
-AI Enhancement: Optional machine learning scoring for improved accuracy
-Supported Vulnerabilities
-SQL Injection
-Cross-Site Scripting (XSS)
-Path Traversal
-Command Injection
-Hardcoded Secrets
-Insecure Deserialization
-Weak Cryptography
-Dangerous Function Calls
+### 🛠️ How It Works
+#### Detection Methods
+- **Regex Pattern Matching:**  Fast pattern detection for common vulnerabilities
+- **AST Analysis:**  Deep code structure analysis for complex vulnerabilities
+- **AI Enhancement:**  Optional machine learning scoring for improved accuracy
+### Supported Vulnerabilities
+- SQL Injection
+- Cross-Site Scripting (XSS)
+- Path Traversal
+- Command Injection
+- Hardcoded Secrets
+- Insecure Deserialization
+- Weak Cryptography
+- Dangerous Function Calls
 
-###📊 Sample Output
+### 📊 Sample Output
 ```bash
 🔍 Smart Code Vulnerability Triage System
 Scanning: ./samples/vulnerable_python.py
@@ -63,7 +63,7 @@ Triage Score: 8.2/10 (High Risk)
 
 Report generated: reports/2024-01-15_vulnerability_report.json
 ```
-###🏗️ Architecture
+### 🏗️ Architecture
 ```bash
 Input Code → [Regex Scanner] → [AST Analyzer] → [Triage Engine] → [Reporter] → Output
                     ↓              ↓              ↓              ↓
@@ -73,29 +73,30 @@ Input Code → [Regex Scanner] → [AST Analyzer] → [Triage Engine] → [Repor
                                     ↓
                               Enhanced Scoring
 ```
-🎯 Use Cases
-Security Code Reviews: Automated pre-commit security checks
-CI/CD Integration: Pipeline security scanning
-Educational Tool: Teaching secure coding practices
-Hackathon Projects: Rapid security assessment for prototypes
-👥 Team
-Lead Developer: [Your Name]
-Security Researcher: [Team Member 1]
-AI/ML Specialist: [Team Member 2]
-UI/UX Designer: [Team Member 3]
-🚀 Future Enhancements
-Short Term
-IDE Plugin (VS Code, PyCharm)
-GitHub Actions Integration
-Live Dashboard with Real-time Monitoring
-Docker Containerization
-Long Term
-Additional Language Support (Java, Go, C#)
-False Positive Reduction using ML
-Integration with Popular SAST Tools
-Cloud Deployment Options
+## 🎯 Use Cases
+- **Security Code Reviews:** Automated pre-commit security checks
+- **CI/CD Integration:** Pipeline security scanning
+- **Educational Tool:** Teaching secure coding practices
+- **Hackathon Projects:** Rapid security assessment for prototypes
+## 👥 Team
+- Sarvesh M (25BCE5743)
+- Jaydon D (25BCE5725)
+- Narain R K (25BCE1277)
+- Saineeraj Saravanan (25BCE1066)
+- Hariharan H (25BCE1311)
+## 🚀 Future Enhancements
+### Short Term
+- IDE Plugin (VS Code, PyCharm)
+- GitHub Actions Integration
+- Live Dashboard with Real-time Monitoring
+- Docker Containerization
+### Long Term
+- Additional Language Support (Java, Go, C#)
+- False Positive Reduction using ML
+- Integration with Popular SAST Tools
+- Cloud Deployment Options
 
-###🙏 Acknowledgments
+## 🙏 Acknowledgments
 
 Inspired by popular SAST tools like Bandit and ESLint
 Powered by Python's AST module and regex capabilities
@@ -140,6 +141,7 @@ smart-code-triage/
     ├── __init__.py
     └── helpers.py
 ```
+
 
 
 
