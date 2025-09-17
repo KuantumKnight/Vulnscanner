@@ -1,235 +1,68 @@
-// DOM Elements
-const tabButtons = document.querySelectorAll('.tab-button');
-const tabContents = document.querySelectorAll('.tab-content');
-const fileInput = document.getElementById('file-input');
-const browseBtn = document.getElementById('browse-btn');
-const dropArea = document.getElementById('drop-area');
-const fileList = document.getElementById('file-list');
-const fileInfo = document.getElementById('file-info');
-const clearFilesBtn = document.getElementById('clear-files');
-const codeEditor = document.getElementById('code-editor');
-const languageSelect = document.getElementById('language-select');
-const scanBtn = document.getElementById('scan-btn');
-const loading = document.getElementById('loading');
-const resultsSection = document.getElementById('results-section');
-const toastContainer = document.getElementById('toast-container');
-
-// State
-let selectedFiles = [];
-
-// Tab Switching
-tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        // Remove active class from all buttons and contents
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-        
-        // Add active class to clicked button
-        button.classList.add('active');
-        
-        // Show corresponding content
-        const tabId = button.getAttribute('data-tab');
-        document.getElementById(`${tabId}-tab`).classList.add('active');
-    });
-});
-
-// File Upload Handling
-browseBtn.addEventListener('click', () => {
-    fileInput.click();
-});
-
-fileInput.addEventListener('change', (e) => {
-    handleFiles(e.target.files);
-});
-
-// Drag and Drop
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropArea.addEventListener(eventName, preventDefaults, false);
-});
-
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-['dragenter', 'dragover'].forEach(eventName => {
-    dropArea.addEventListener(eventName, highlight, false);
-});
-
-['dragleave', 'drop'].forEach(eventName => {
-    dropArea.addEventListener(eventName, unhighlight, false);
-});
-
-function highlight() {
-    dropArea.classList.add('drag-over');
-}
-
-function unhighlight() {
-    dropArea.classList.remove('drag-over');
-}
-
-dropArea.addEventListener('drop', (e) => {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFiles(files);
-});
-
-function handleFiles(files) {
-    [...files].forEach(file => {
-        if (file.name.endsWith('.py') || file.name.endsWith('.js')) {
-            selectedFiles.push(file);
-        } else {
-            showToast(`File ${file.name} is not supported. Only .py and .js files allowed.`, 'error');
-        }
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    const scanBtn = document.getElementById('scan-btn');
+    const codeEditor = document.getElementById('code-editor');
+    const loading = document.getElementById('loading');
+    const resultsSection = document.getElementById('results-section');
     
-    updateFileList();
-}
-
-function updateFileList() {
-    if (selectedFiles.length > 0) {
-        fileInfo.style.display = 'block';
-        fileList.innerHTML = '';
-        selectedFiles.forEach((file, index) => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <span>${file.name} (${formatFileSize(file.size)})</span>
-                <button class="remove-file" data-index="${index}">Remove</button>
-            `;
-            fileList.appendChild(li);
-        });
-        
-        // Add event listeners to remove buttons
-        document.querySelectorAll('.remove-file').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.getAttribute('data-index'));
-                selectedFiles.splice(index, 1);
-                updateFileList();
-            });
-        });
-    } else {
-        fileInfo.style.display = 'none';
-    }
-}
-
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-clearFilesBtn.addEventListener('click', () => {
-    selectedFiles = [];
-    fileInput.value = '';
-    updateFileList();
-});
-
-// Scan Functionality
-scanBtn.addEventListener('click', async () => {
-    const activeTab = document.querySelector('.tab-content.active').id;
-    
-    if (activeTab === 'file-upload-tab') {
-        if (selectedFiles.length === 0) {
-            showToast('Please select at least one file to scan', 'warning');
-            return;
-        }
-        await scanFiles();
-    } else {
+    scanBtn.addEventListener('click', async function() {
         if (!codeEditor.value.trim()) {
-            showToast('Please enter some code to scan', 'warning');
+            showToast('Please enter some code to scan', 'error');
             return;
         }
-        await scanCode();
-    }
-});
-
-async function scanFiles() {
-    showLoading(true);
-    
-    try {
-        const formData = new FormData();
-        selectedFiles.forEach(file => {
-            formData.append('file', file);
-        });
         
-        const response = await fetch('/api/scan', {
-            method: 'POST',
-            body: formData
-        });
+        showLoading(true);
         
-        const result = await response.json();
-        
-        if (response.ok) {
-            displayResults(result);
-        } else {
-            showToast(result.error || 'Scan failed', 'error');
+        try {
+            // Simple mock response for now - replace with actual API call
+            setTimeout(() => {
+                displayResults({
+                    triage_score: 8.5,
+                    total_findings: 2,
+                    risk_level: 'High',
+                    findings: [
+                        {
+                            type: 'HARDCODED_SECRET',
+                            description: 'Hardcoded API key detected',
+                            severity: 'Critical',
+                            line: 2,
+                            code_snippet: 'API_KEY = "sk-1234567890abcdef1234567890abcdef"'
+                        },
+                        {
+                            type: 'DANGEROUS_EVAL',
+                            description: 'Use of eval() detected',
+                            severity: 'High',
+                            line: 5,
+                            code_snippet: 'return eval(user_input)'
+                        }
+                    ]
+                });
+                showLoading(false);
+            }, 1500);
+            
+        } catch (error) {
+            showToast('Error scanning code: ' + error.message, 'error');
+            showLoading(false);
         }
-    } catch (error) {
-        showToast('Network error: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-
-async function scanCode() {
-    showLoading(true);
+    });
     
-    try {
-        const formData = new FormData();
-        formData.append('code', codeEditor.value);
-        formData.append('language', languageSelect.value);
-        
-        const response = await fetch('/api/scan', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            displayResults(result);
+    function showLoading(show) {
+        if (show) {
+            loading.style.display = 'block';
+            scanBtn.disabled = true;
         } else {
-            showToast(result.error || 'Scan failed', 'error');
+            loading.style.display = 'none';
+            scanBtn.disabled = false;
         }
-    } catch (error) {
-        showToast('Network error: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-
-function displayResults(result) {
-    // Update score badge
-    document.getElementById('score-badge').textContent = `${result.triage_score.toFixed(1)}/10`;
-    
-    // Update summary cards
-    document.getElementById('total-findings').textContent = result.total_findings;
-    document.getElementById('risk-level').textContent = result.risk_level;
-    document.getElementById('files-scanned').textContent = 1; // Simplified
-    
-    // Update risk level color
-    const riskLevelElement = document.getElementById('risk-level');
-    riskLevelElement.className = '';
-    riskLevelElement.classList.add('card-value');
-    if (result.risk_level === 'Critical') {
-        riskLevelElement.style.color = '#f44336';
-    } else if (result.risk_level === 'High') {
-        riskLevelElement.style.color = '#ff6b35';
-    } else if (result.risk_level === 'Medium') {
-        riskLevelElement.style.color = '#ff9800';
-    } else {
-        riskLevelElement.style.color = '#4caf50';
     }
     
-    // Display findings
-    const findingsList = document.getElementById('findings-list');
-    findingsList.innerHTML = '';
-    
-    if (result.findings.length === 0) {
-        findingsList.innerHTML = '<p class="no-findings">No vulnerabilities found! Great job on secure coding.</p>';
-    } else {
+    function displayResults(result) {
+        document.getElementById('score-badge').textContent = `${result.triage_score.toFixed(1)}/10`;
+        document.getElementById('total-findings').textContent = result.total_findings;
+        document.getElementById('risk-level').textContent = result.risk_level;
+        
+        const findingsList = document.getElementById('findings-list');
+        findingsList.innerHTML = '';
+        
         result.findings.forEach(finding => {
             const findingElement = document.createElement('div');
             findingElement.className = `finding ${finding.severity.toLowerCase()}`;
@@ -240,71 +73,28 @@ function displayResults(result) {
                 </div>
                 <div class="finding-details">
                     <p><strong>Description:</strong> ${finding.description}</p>
-                    <p><strong>Location:</strong> Line ${finding.line || 'N/A'}</p>
+                    <p><strong>Location:</strong> Line ${finding.line}</p>
                 </div>
-                ${finding.code_snippet ? `<div class="finding-code">${escapeHtml(finding.code_snippet)}</div>` : ''}
+                <div class="finding-code">${finding.code_snippet}</div>
             `;
             findingsList.appendChild(findingElement);
         });
+        
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        showToast(`Scan complete! Found ${result.total_findings} issues.`, 'success');
     }
     
-    // Show results section
-    resultsSection.style.display = 'block';
-    
-    // Scroll to results
-    resultsSection.scrollIntoView({ behavior: 'smooth' });
-    
-    showToast(`Scan complete! Found ${result.total_findings} issues.`, 'success');
-}
-
-function showLoading(show) {
-    if (show) {
-        loading.style.display = 'block';
-        scanBtn.disabled = true;
-        scanBtn.style.opacity = '0.7';
-    } else {
-        loading.style.display = 'none';
-        scanBtn.disabled = false;
-        scanBtn.style.opacity = '1';
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        
+        const toastContainer = document.getElementById('toast-container');
+        toastContainer.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
     }
-}
-
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    
-    toastContainer.appendChild(toast);
-    
-    // Remove toast after 5 seconds
-    setTimeout(() => {
-        toast.remove();
-    }, 5000);
-}
-
-function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "<")
-        .replace(/>/g, ">")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    // Set up initial state
-    updateFileList();
-    
-    // Check API health
-    fetch('/health')
-        .then(response => response.json())
-        .then(data => {
-            if (!data.scanner_available) {
-                showToast('Scanner backend not available. Some features may be limited.', 'warning');
-            }
-        })
-        .catch(() => {
-            // Silent fail - just for health check
-        });
 });
