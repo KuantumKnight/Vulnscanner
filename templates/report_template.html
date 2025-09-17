@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vulnerability Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f0f0f0; padding: 20px; border-radius: 5px; }
+        .finding { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .critical { border-left: 5px solid #ff0000; }
+        .high { border-left: 5px solid #ff6600; }
+        .medium { border-left: 5px solid #ffcc00; }
+        .low { border-left: 5px solid #00cc00; }
+        .score { font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Vulnerability Report</h1>
+        <p><strong>Scan Time:</stronreport_template.htmlg> {{ timestamp }}</p>
+        <p><strong>Total Findings:</strong> {{ total_findings }}</p>
+        <p><strong>Triage Score:</strong> <span class="score">{{ "%.1f"|format(triage_score) }}/10</span></p>
+    </div>
+    
+    {% for finding in findings %}
+    <div class="finding {{ finding.severity.lower() }}">
+        <h3>{{ finding.type }}</h3>
+        <p><strong>Severity:</strong> {{ finding.severity }}</p>
+        <p><strong>Description:</strong> {{ finding.description }}</p>
+        <p><strong>File:</strong> {{ finding.file }}:{{ finding.line }}</p>
+        {% if finding.code_snippet %}
+        <pre>{{ finding.code_snippet }}</pre>
+        {% endif %}
+    </div>
+    {% endfor %}
+</body>
+</html>
