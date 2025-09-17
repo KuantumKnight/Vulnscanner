@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vulnscanner</title>
+    <title>Smart Code Vulnerability Triage System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -85,6 +86,29 @@
             margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title .actions {
+            font-size: 1rem;
+            font-weight: normal;
+        }
+
+        .section-title .actions button {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+
+        .section-title .actions button:hover {
+            background: var(--primary);
+            color: white;
         }
 
         /* Tab styles */
@@ -92,6 +116,7 @@
             display: flex;
             margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -157,6 +182,33 @@
             line-height: 1.5;
             resize: vertical;
             background: #f8f9fa;
+        }
+
+        /* Website Scan Tab */
+        .website-scan {
+            margin-bottom: 1.5rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .scan-types {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .scan-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         /* Drag and Drop Area */
@@ -249,6 +301,17 @@
             opacity: 0.7;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            margin: 0;
         }
 
         .loading {
@@ -459,23 +522,97 @@
         #file-input {
             display: none;
         }
+
+        .scan-progress {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .scan-progress.show {
+            display: block;
+        }
+
+        /* Dashboard styles */
+        .dashboard {
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-bottom: 2rem;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: var(--gray);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: #5a6268;
+        }
+
+        .recent-scans {
+            margin-top: 2rem;
+        }
+
+        .recent-scan-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .recent-scan-item:last-child {
+            border-bottom: none;
+        }
+
+        .scan-target {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .scan-score {
+            float: right;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-shield-alt"></i> Vulnscanner</h1>
-            <p>Automated vulnerability analysis</p>
+            <h1><i class="fas fa-shield-alt"></i> Smart Code Vulnerability Triage</h1>
+            <p>Automated security analysis for Python, JavaScript, and websites</p>
         </div>
 
         <div class="main-content">
             <div class="input-section">
-                <h2 class="section-title">Code Input</h2>
+                <h2 class="section-title">
+                    Scan Input
+                    <div class="actions">
+                        <button id="clear-all-btn"><i class="fas fa-broom"></i> Clear All</button>
+                    </div>
+                </h2>
                 
                 <!-- Tab Navigation -->
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="editor">Code Editor</button>
                     <button class="tab-btn" data-tab="upload">File Upload</button>
+                    <button class="tab-btn" data-tab="website">Website Scan</button>
                 </div>
                 
                 <!-- Code Editor Tab -->
@@ -501,6 +638,9 @@ result = vulnerable_function("1+1")
 // document.getElementById('output').innerHTML = userInput;
 // eval(userInput);</textarea>
                     </div>
+                    <button class="btn" id="scan-code-btn">
+                        <i class="fas fa-search"></i> Scan Code
+                    </button>
                 </div>
                 
                 <!-- File Upload Tab -->
@@ -508,40 +648,117 @@ result = vulnerable_function("1+1")
                     <div class="upload-area" id="drop-area">
                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         <h3>Drag & Drop your code files here</h3>
-                        <p>Supports .py and .js files</p>
+                        <p>Supports .py, .js, and .html files</p>
                         <p style="color: var(--gray); margin: 1rem 0;">or</p>
                         <button class="browse-btn" id="browse-btn">
                             <i class="fas fa-folder-open"></i> Browse Files
                         </button>
-                        <input type="file" id="file-input" accept=".py,.js">
+                        <input type="file" id="file-input" accept=".py,.js,.html">
                     </div>
                     <div class="file-info" id="file-info">
                         <h4>Selected File:</h4>
                         <p id="file-name"></p>
                         <button class="clear-btn" id="clear-file">Clear Selection</button>
                     </div>
+                    <button class="btn" id="scan-file-btn">
+                        <i class="fas fa-file-code"></i> Scan File
+                    </button>
                 </div>
                 
-                <button class="btn" id="scan-btn">
-                    <i class="fas fa-search"></i> Scan for Vulnerabilities
-                </button>
+                <!-- Website Scan Tab -->
+                <div id="website-tab" class="tab-content">
+                    <div class="website-scan">
+                        <input type="url" id="website-url" class="url-input" placeholder="https://example.com" />
+                        <div class="scan-types">
+                            <div class="scan-type">
+                                <input type="checkbox" id="scan-html" checked>
+                                <label for="scan-html">HTML/CSS</label>
+                            </div>
+                            <div class="scan-type">
+                                <input type="checkbox" id="scan-js" checked>
+                                <label for="scan-js">JavaScript</label>
+                            </div>
+                            <div class="scan-type">
+                                <input type="checkbox" id="scan-full" checked>
+                                <label for="scan-full">Full Source</label>
+                            </div>
+                        </div>
+                        <button class="btn" id="scan-website-btn">
+                            <i class="fas fa-globe"></i> Scan Website
+                        </button>
+                        <div class="scan-progress" id="scan-progress">
+                            <p><i class="fas fa-spinner fa-spin"></i> Fetching website source code...</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="loading" id="loading">
-                    <i class="fas fa-spinner"></i> Scanning code...
+                    <i class="fas fa-spinner"></i> Scanning...
                 </div>
             </div>
 
             <div class="output-section">
-                <h2 class="section-title">Scan Results</h2>
+                <h2 class="section-title">
+                    Scan Results
+                    <div class="actions">
+                        <button id="export-json-btn"><i class="fas fa-file-code"></i> JSON</button>
+                        <button id="export-txt-btn"><i class="fas fa-file-alt"></i> TXT</button>
+                    </div>
+                </h2>
+                
+                <!-- Dashboard Summary -->
+                <div class="dashboard">
+                    <div class="chart-container">
+                        <canvas id="vulnerabilityChart"></canvas>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-scans">127</div>
+                            <div class="stat-label">Total Scans</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="vulns-found">45</div>
+                            <div class="stat-label">Vulnerabilities</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="critical-count">8</div>
+                            <div class="stat-label">Critical Issues</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div id="results">
                     <div class="no-findings">
-                        <p>Enter code and click "Scan for Vulnerabilities" to analyze</p>
+                        <p>Enter code, upload a file, or scan a website to analyze</p>
+                        <p style="margin-top: 1rem;">Safe code like <code>print('hello')</code> will show 0 vulnerabilities</p>
+                    </div>
+                </div>
+                
+                <div class="recent-scans">
+                    <h3>Recent Scans</h3>
+                    <div id="recent-scans-list">
+                        <div class="recent-scan-item">
+                            <span class="scan-target">github.com</span>
+                            <span class="scan-score">7.2/10</span>
+                            <div style="font-size: 0.9rem; color: var(--gray);">2024-01-15</div>
+                        </div>
+                        <div class="recent-scan-item">
+                            <span class="scan-target">test.py</span>
+                            <span class="scan-score">2.1/10</span>
+                            <div style="font-size: 0.9rem; color: var(--gray);">2024-01-14</div>
+                        </div>
+                        <div class="recent-scan-item">
+                            <span class="scan-target">example.com</span>
+                            <span class="scan-score">4.5/10</span>
+                            <div style="font-size: 0.9rem; color: var(--gray);">2024-01-13</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            <p>Vulnscanner &copy; 2025 | Hackathon Project</p>
+            <p>Smart Code Vulnerability Triage System &copy; 2024 | Hackathon Project</p>
         </div>
     </div>
 
@@ -559,13 +776,25 @@ result = vulnerable_function("1+1")
             const fileName = document.getElementById('file-name');
             const clearFileBtn = document.getElementById('clear-file');
             const codeInput = document.getElementById('codeInput');
-            const scanBtn = document.getElementById('scan-btn');
+            const scanCodeBtn = document.getElementById('scan-code-btn');
+            const scanFileBtn = document.getElementById('scan-file-btn');
+            const scanWebsiteBtn = document.getElementById('scan-website-btn');
             const loading = document.getElementById('loading');
+            const scanProgress = document.getElementById('scan-progress');
             const results = document.getElementById('results');
             const languageSelect = document.getElementById('language-select');
+            const websiteUrl = document.getElementById('website-url');
+            const clearAllBtn = document.getElementById('clear-all-btn');
+            const exportJsonBtn = document.getElementById('export-json-btn');
+            const exportTxtBtn = document.getElementById('export-txt-btn');
 
             // State
             let selectedFile = null;
+            let currentResults = null;
+            let chart = null;
+
+            // Initialize dashboard chart
+            initializeChart();
 
             // Tab Switching
             tabButtons.forEach(button => {
@@ -631,7 +860,7 @@ result = vulnerable_function("1+1")
 
             // Handle file selection
             function handleFile(file) {
-                if (file.name.endsWith('.py') || file.name.endsWith('.js')) {
+                if (file.name.endsWith('.py') || file.name.endsWith('.js') || file.name.endsWith('.html')) {
                     selectedFile = file;
                     fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
                     fileInfo.classList.add('show');
@@ -641,11 +870,15 @@ result = vulnerable_function("1+1")
                     reader.onload = function(e) {
                         codeInput.value = e.target.result;
                         // Auto-select language based on file extension
-                        languageSelect.value = file.name.endsWith('.py') ? 'python' : 'javascript';
+                        if (file.name.endsWith('.py')) {
+                            languageSelect.value = 'python';
+                        } else if (file.name.endsWith('.js')) {
+                            languageSelect.value = 'javascript';
+                        }
                     };
                     reader.readAsText(file);
                 } else {
-                    showToast('Please select a .py or .js file', 'error');
+                    showToast('Please select a .py, .js, or .html file', 'error');
                 }
             }
 
@@ -654,6 +887,25 @@ result = vulnerable_function("1+1")
                 selectedFile = null;
                 fileInfo.classList.remove('show');
                 fileInput.value = '';
+            });
+
+            // Clear all inputs
+            clearAllBtn.addEventListener('click', () => {
+                codeInput.value = '';
+                websiteUrl.value = '';
+                selectedFile = null;
+                fileInfo.classList.remove('show');
+                fileInput.value = '';
+                results.innerHTML = `
+                    <div class="no-findings">
+                        <p>Enter code, upload a file, or scan a website to analyze</p>
+                        <p style="margin-top: 1rem;">Safe code like <code>print('hello')</code> will show 0 vulnerabilities</p>
+                    </div>
+                `;
+                if (chart) {
+                    chart.data.datasets[0].data = [0, 0, 0, 0];
+                    chart.update();
+                }
             });
 
             // Format file size
@@ -665,8 +917,60 @@ result = vulnerable_function("1+1")
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
 
-            // Scan Functionality
-            scanBtn.addEventListener('click', async function() {
+            // Website Scanning Functionality
+            scanWebsiteBtn.addEventListener('click', async function() {
+                const url = websiteUrl.value.trim();
+                if (!url) {
+                    showToast('Please enter a website URL', 'error');
+                    return;
+                }
+                
+                try {
+                    // Validate URL format
+                    new URL(url.startsWith('http') ? url : 'https://' + url);
+                } catch (e) {
+                    showToast('Please enter a valid URL (e.g., https://example.com)', 'error');
+                    return;
+                }
+                
+                await scanWebsite(url);
+            });
+
+            async function scanWebsite(url) {
+                // Show progress
+                scanProgress.classList.add('show');
+                scanWebsiteBtn.disabled = true;
+                
+                try {
+                    // Call backend API
+                    const response = await fetch('/api/scan-website', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ url: url })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to scan website');
+                    }
+                    
+                    const data = await response.json();
+                    currentResults = data;
+                    displayResults(data);
+                    updateChart(data.findings);
+                    showToast(`Website scan complete! Found ${data.total_findings} issues.`, 'success');
+                    
+                } catch (error) {
+                    showToast('Error scanning website: ' + error.message, 'error');
+                } finally {
+                    scanProgress.classList.remove('show');
+                    scanWebsiteBtn.disabled = false;
+                }
+            }
+
+            // Code Scanning Functionality
+            scanCodeBtn.addEventListener('click', async function() {
                 const code = codeInput.value.trim();
                 if (!code) {
                     showToast('Please enter some code to scan', 'error');
@@ -680,24 +984,29 @@ result = vulnerable_function("1+1")
             async function scanCode(code, language) {
                 // Show loading
                 loading.classList.add('show');
-                scanBtn.disabled = true;
+                scanCodeBtn.disabled = true;
 
                 try {
-                    // Simulate API delay
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    
-                    // Generate accurate mock results based on the code content
-                    const findings = detectVulnerabilities(code, language);
-                    
-                    displayResults({
-                        triage_score: calculateTriageScore(findings),
-                        total_findings: findings.length,
-                        risk_level: getRiskLevel(findings),
-                        findings: findings
+                    // Call backend API
+                    const response = await fetch('/api/scan-code', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ code: code, language: language })
                     });
                     
-                    if (findings.length > 0) {
-                        showToast(`Scan complete! Found ${findings.length} issues.`, 'success');
+                    if (!response.ok) {
+                        throw new Error('Failed to scan code');
+                    }
+                    
+                    const data = await response.json();
+                    currentResults = data;
+                    displayResults(data);
+                    updateChart(data.findings);
+                    
+                    if (data.total_findings > 0) {
+                        showToast(`Scan complete! Found ${data.total_findings} issues.`, 'success');
                     } else {
                         showToast('Scan complete! No vulnerabilities found.', 'success');
                     }
@@ -705,132 +1014,71 @@ result = vulnerable_function("1+1")
                     showToast('Error scanning code: ' + error.message, 'error');
                 } finally {
                     loading.classList.remove('show');
-                    scanBtn.disabled = false;
+                    scanCodeBtn.disabled = false;
                 }
             }
 
-            function detectVulnerabilities(code, language) {
-                const findings = [];
-                const lines = code.split('\n');
+            // File Scanning Functionality
+            scanFileBtn.addEventListener('click', async function() {
+                if (!selectedFile) {
+                    showToast('Please select a file to scan', 'error');
+                    return;
+                }
                 
-                // Check for hardcoded secrets
-                const secretPatterns = [
-                    { pattern: /API[_-]?KEY\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'API_KEY' },
-                    { pattern: /SECRET[_-]?KEY\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'SECRET_KEY' },
-                    { pattern: /TOKEN\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'TOKEN' },
-                    { pattern: /PASSWORD\s*[:=]\s*["'][^"'\s]{6,}["']/i, name: 'PASSWORD' }
-                ];
-                
-                lines.forEach((line, index) => {
-                    // Hardcoded secrets
-                    secretPatterns.forEach(secret => {
-                        if (secret.pattern.test(line)) {
-                            findings.push({
-                                type: 'HARDCODED_SECRET',
-                                description: `Hardcoded ${secret.name} detected`,
-                                severity: 'Critical',
-                                line: index + 1,
-                                code_snippet: line.trim()
-                            });
-                        }
+                await scanFile(selectedFile);
+            });
+
+            async function scanFile(file) {
+                // Show loading
+                loading.classList.add('show');
+                scanFileBtn.disabled = true;
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    // Call backend API
+                    const response = await fetch('/api/scan-file', {
+                        method: 'POST',
+                        body: formData
                     });
                     
-                    // Dangerous eval usage
-                    if (line.includes('eval(') && !line.includes('//') && !line.includes('#')) {
-                        findings.push({
-                            type: 'DANGEROUS_EVAL',
-                            description: 'Use of eval() detected - potential code injection',
-                            severity: 'High',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
+                    if (!response.ok) {
+                        throw new Error('Failed to scan file');
                     }
                     
-                    // XSS vulnerabilities (JavaScript)
-                    if (language === 'javascript' && line.includes('innerHTML') && line.includes('=')) {
-                        findings.push({
-                            type: 'XSS_VULNERABILITY',
-                            description: 'Potential XSS via innerHTML assignment',
-                            severity: 'High',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
-                    }
+                    const data = await response.json();
+                    currentResults = data;
+                    displayResults(data);
+                    updateChart(data.findings);
                     
-                    // Command injection (Python)
-                    if (language === 'python' && line.includes('subprocess.') && line.includes('shell=True')) {
-                        findings.push({
-                            type: 'COMMAND_INJECTION',
-                            description: 'Potential command injection with shell=True',
-                            severity: 'Critical',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
+                    if (data.total_findings > 0) {
+                        showToast(`File scan complete! Found ${data.total_findings} issues.`, 'success');
+                    } else {
+                        showToast('File scan complete! No vulnerabilities found.', 'success');
                     }
-                    
-                    // SQL Injection patterns
-                    if ((line.includes('execute') || line.includes('query')) && 
-                        (line.includes('+') || line.includes('format(') || line.includes('%'))) {
-                        findings.push({
-                            type: 'SQL_INJECTION',
-                            description: 'Potential SQL injection via string concatenation',
-                            severity: 'High',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
-                    }
-                    
-                    // Weak crypto
-                    if (line.includes('md5(') || line.includes('sha1(') || line.includes('.md5(') || line.includes('.sha1(')) {
-                        findings.push({
-                            type: 'WEAK_CRYPTO',
-                            description: 'Weak cryptographic algorithm (MD5/SHA1) detected',
-                            severity: 'Medium',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
-                    }
-                });
-                
-                return findings;
-            }
-
-            function calculateTriageScore(findings) {
-                if (findings.length === 0) return 0.0;
-                
-                const severityWeights = {
-                    'Critical': 10,
-                    'High': 7,
-                    'Medium': 4,
-                    'Low': 1
-                };
-                
-                const totalWeight = findings.reduce((sum, finding) => 
-                    sum + (severityWeights[finding.severity] || 1), 0);
-                const maxPossible = findings.length * 10;
-                
-                return (totalWeight / maxPossible) * 10;
-            }
-
-            function getRiskLevel(findings) {
-                if (findings.length === 0) return 'Low';
-                
-                const hasCritical = findings.some(f => f.severity === 'Critical');
-                const hasHigh = findings.some(f => f.severity === 'High');
-                const hasMedium = findings.some(f => f.severity === 'Medium');
-                
-                if (hasCritical) return 'Critical';
-                if (hasHigh) return 'High';
-                if (hasMedium) return 'Medium';
-                return 'Low';
+                } catch (error) {
+                    showToast('Error scanning file: ' + error.message, 'error');
+                } finally {
+                    loading.classList.remove('show');
+                    scanFileBtn.disabled = false;
+                }
             }
 
             function displayResults(result) {
                 let html = `
                     <div class="result-card">
                         <div class="score-header">
-                            <h3>Security Analysis</h3>
-                            <div class="score-badge">${result.triage_score.toFixed(1)}/10</div>
+                            <h3>Security Analysis`;
+                
+                if (result.scanned_url) {
+                    html += ` - <span style="font-size: 1rem; font-weight: normal;">${new URL(result.scanned_url).hostname}</span>`;
+                } else if (result.filename) {
+                    html += ` - <span style="font-size: 1rem; font-weight: normal;">${result.filename}</span>`;
+                }
+                
+                html += `</h3>
+                            <div class="score-badge">${result.triage_score}/10</div>
                         </div>
                         
                         <div class="stats-grid">
@@ -846,7 +1094,7 @@ result = vulnerable_function("1+1")
                     </div>
                 `;
 
-                if (result.findings.length > 0) {
+                if (result.findings && result.findings.length > 0) {
                     html += `
                         <div class="findings-list">
                             <h3>Vulnerabilities Found (${result.findings.length})</h3>
@@ -910,6 +1158,146 @@ result = vulnerable_function("1+1")
                 setTimeout(() => {
                     toast.remove();
                 }, 3000);
+            }
+
+            // Chart functionality
+            function initializeChart() {
+                const ctx = document.getElementById('vulnerabilityChart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Critical', 'High', 'Medium', 'Low'],
+                        datasets: [{
+                            data: [0, 0, 0, 0],
+                            backgroundColor: ['#f44336', '#ff6b35', '#ff9800', '#4caf50']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateChart(findings) {
+                if (!chart || !findings) return;
+                
+                const counts = {
+                    'Critical': 0,
+                    'High': 0,
+                    'Medium': 0,
+                    'Low': 0
+                };
+                
+                findings.forEach(finding => {
+                    if (counts[finding.severity] !== undefined) {
+                        counts[finding.severity]++;
+                    }
+                });
+                
+                chart.data.datasets[0].data = [
+                    counts['Critical'],
+                    counts['High'],
+                    counts['Medium'],
+                    counts['Low']
+                ];
+                chart.update();
+            }
+
+            // Export functionality
+            exportJsonBtn.addEventListener('click', () => {
+                if (!currentResults) {
+                    showToast('No results to export', 'error');
+                    return;
+                }
+                exportResults('json');
+            });
+
+            exportTxtBtn.addEventListener('click', () => {
+                if (!currentResults) {
+                    showToast('No results to export', 'error');
+                    return;
+                }
+                exportResults('txt');
+            });
+
+            function exportResults(format) {
+                if (!currentResults) return;
+                
+                let content, filename, mimeType;
+                
+                if (format === 'json') {
+                    content = JSON.stringify(currentResults, null, 2);
+                    filename = 'vulnerability-report.json';
+                    mimeType = 'application/json';
+                } else {
+                    content = formatResultsAsText(currentResults);
+                    filename = 'vulnerability-report.txt';
+                    mimeType = 'text/plain';
+                }
+                
+                const blob = new Blob([content], {type: mimeType});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast(`Report exported as ${filename}`, 'success');
+            }
+
+            function formatResultsAsText(results) {
+                let text = `VULNERABILITY SCAN REPORT\n`;
+                text += `========================\n\n`;
+                text += `Scan Date: ${new Date().toISOString()}\n`;
+                text += `Triage Score: ${results.triage_score}/10\n`;
+                text += `Total Findings: ${results.total_findings}\n`;
+                text += `Risk Level: ${results.risk_level}\n\n`;
+                
+                if (results.findings && results.findings.length > 0) {
+                    text += `DETECTED VULNERABILITIES:\n`;
+                    text += `------------------------\n\n`;
+                    
+                    results.findings.forEach((finding, index) => {
+                        text += `${index + 1}. ${finding.type.replace(/_/g, ' ')}\n`;
+                        text += `   Severity: ${finding.severity}\n`;
+                        text += `   Description: ${finding.description}\n`;
+                        text += `   Location: Line ${finding.line || 'N/A'}\n`;
+                        if (finding.code_snippet) {
+                            text += `   Code: ${finding.code_snippet}\n`;
+                        }
+                        text += `\n`;
+                    });
+                } else {
+                    text += `No vulnerabilities found. Code is secure.\n`;
+                }
+                
+                return text;
+            }
+
+            // Load dashboard stats
+            loadDashboardStats();
+            
+            async function loadDashboardStats() {
+                try {
+                    const response = await fetch('/api/dashboard-stats');
+                    if (response.ok) {
+                        const stats = await response.json();
+                        document.getElementById('total-scans').textContent = stats.total_scans;
+                        document.getElementById('vulns-found').textContent = stats.vulnerabilities_found;
+                        document.getElementById('critical-count').textContent = stats.critical_issues;
+                    }
+                } catch (error) {
+                    console.log('Failed to load dashboard stats');
+                }
             }
         });
     </script>
