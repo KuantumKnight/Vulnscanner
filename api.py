@@ -1,45 +1,16 @@
-from flask import Flask, request, jsonify, render_template, send_file
-from flask_cors import CORS
-import os
-import json
-import tempfile
-from werkzeug.utils import secure_filename
-import sys
-from pathlib import Path
+from flask import Flask, render_template, jsonify
 
-# Add current directory to Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-# Import your existing modules
-try:
-    from core.scanner import CodeScanner
-    from core.reporter import ReportGenerator
-    SCANNER_AVAILABLE = True
-except ImportError as e:
-    print(f"Scanner import error: {e}")
-    SCANNER_AVAILABLE = False
-
-app = Flask(__name__, template_folder='templates', static_folder='static')
-CORS(app)
-
-# Configuration
-UPLOAD_FOLDER = 'uploads'
-REPORTS_FOLDER = 'reports'
-ALLOWED_EXTENSIONS = {'py', 'js'}
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['REPORTS_FOLDER'] = REPORTS_FOLDER
-
-# Create directories if they don't exist
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(REPORTS_FOLDER, exist_ok=True)
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return "<h1>Smart Code Vulnerability Triage System</h1><p>Web server is running!</p>"
 
-# ... rest of your api.py code
+@app.route('/health')
+def health():
+    return jsonify({"status": "healthy", "message": "Server is running"})
+
+if __name__ == '__main__':
+    print("Starting Flask server...")
+    print("Access the web interface at: http://localhost:5000")
+    app.run(debug=True, host='0.0.0.0', port=5000)
