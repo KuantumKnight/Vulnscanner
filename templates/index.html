@@ -17,6 +17,8 @@
             --light: #f8f9fa;
             --gray: #6c757d;
             --border: #dee2e6;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
 
         * {
@@ -75,7 +77,7 @@
             background: white;
             border-radius: 10px;
             padding: 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--card-shadow);
         }
 
         .section-title {
@@ -86,17 +88,39 @@
         }
 
         /* Tab styles */
-        .tab-btn.active {
-            border-bottom: 3px solid var(--primary);
-            color: var(--primary);
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
         }
 
         .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
             color: var(--gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
         }
 
         .tab-btn:hover {
             color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .editor-container {
@@ -135,6 +159,73 @@
             background: #f8f9fa;
         }
 
+        /* Drag and Drop Area */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover, .upload-area.drag-over {
+            border-color: var(--primary);
+            background: #e3f2fd;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .browse-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 1rem 0;
+        }
+
+        .browse-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .file-info {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .clear-btn {
+            background: var(--gray);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .clear-btn:hover {
+            background: #5a6268;
+        }
+
         .btn {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
@@ -151,7 +242,7 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--hover-shadow);
         }
 
         .btn:disabled {
@@ -165,6 +256,11 @@
             padding: 1rem;
             color: var(--primary);
             font-size: 1.2rem;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
         }
 
         .loading i {
@@ -182,7 +278,7 @@
             border-radius: 10px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--card-shadow);
         }
 
         .score-header {
@@ -360,19 +456,15 @@
             }
         }
 
-        .tab-content {
+        #file-input {
             display: none;
-        }
-
-        .tab-content:first-child {
-            display: block;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 Smart Code Vulnerability Triage</h1>
+            <h1><i class="fas fa-shield-alt"></i> Smart Code Vulnerability Triage</h1>
             <p>Automated security analysis for Python and JavaScript code</p>
         </div>
 
@@ -381,13 +473,13 @@
                 <h2 class="section-title">Code Input</h2>
                 
                 <!-- Tab Navigation -->
-                <div style="display: flex; margin-bottom: 1rem; border-bottom: 1px solid var(--border);">
-                    <button id="editor-tab" class="tab-btn active" style="padding: 1rem; background: none; border: none; cursor: pointer; font-weight: 500;">Code Editor</button>
-                    <button id="upload-tab" class="tab-btn" style="padding: 1rem; background: none; border: none; cursor: pointer; font-weight: 500;">File Upload</button>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="editor">Code Editor</button>
+                    <button class="tab-btn" data-tab="upload">File Upload</button>
                 </div>
                 
                 <!-- Code Editor Tab -->
-                <div id="editor-content" class="tab-content">
+                <div id="editor-tab" class="tab-content active">
                     <div class="editor-container">
                         <div class="editor-header">
                             <span>Code Editor</span>
@@ -412,26 +504,28 @@ result = vulnerable_function("1+1")
                 </div>
                 
                 <!-- File Upload Tab -->
-                <div id="upload-content" class="tab-content" style="display: none;">
-                    <div id="drop-area" style="border: 2px dashed var(--border); border-radius: 10px; padding: 2rem; text-align: center; background: #f8f9fa; cursor: pointer; transition: all 0.3s ease;">
-                        <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <div id="upload-tab" class="tab-content">
+                    <div class="upload-area" id="drop-area">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         <h3>Drag & Drop your code files here</h3>
-                        <p style="color: var(--gray); margin: 1rem 0;">Supports .py and .js files</p>
-                        <p style="color: var(--gray); margin-bottom: 1rem;">or</p>
-                        <button id="browse-btn" class="btn" style="width: auto; display: inline-block;">Browse Files</button>
-                        <input type="file" id="file-input" accept=".py,.js" style="display: none;">
+                        <p>Supports .py and .js files</p>
+                        <p style="color: var(--gray); margin: 1rem 0;">or</p>
+                        <button class="browse-btn" id="browse-btn">
+                            <i class="fas fa-folder-open"></i> Browse Files
+                        </button>
+                        <input type="file" id="file-input" accept=".py,.js">
                     </div>
-                    <div id="file-info" style="margin-top: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 5px; display: none;">
+                    <div class="file-info" id="file-info">
                         <h4>Selected File:</h4>
                         <p id="file-name"></p>
-                        <button id="clear-file" style="background: var(--gray); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">Clear</button>
+                        <button class="clear-btn" id="clear-file">Clear Selection</button>
                     </div>
                 </div>
                 
-                <button id="scanBtn" class="btn">
+                <button class="btn" id="scan-btn">
                     <i class="fas fa-search"></i> Scan for Vulnerabilities
                 </button>
-                <div id="loading" class="loading" style="display: none;">
+                <div class="loading" id="loading">
                     <i class="fas fa-spinner"></i> Scanning code...
                 </div>
             </div>
@@ -455,43 +549,52 @@ result = vulnerable_function("1+1")
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Tab switching functionality
-            document.getElementById('editor-tab').addEventListener('click', function() {
-                document.getElementById('editor-tab').classList.add('active');
-                document.getElementById('upload-tab').classList.remove('active');
-                document.getElementById('editor-content').style.display = 'block';
-                document.getElementById('upload-content').style.display = 'none';
-            });
-
-            document.getElementById('upload-tab').addEventListener('click', function() {
-                document.getElementById('upload-tab').classList.add('active');
-                document.getElementById('editor-tab').classList.remove('active');
-                document.getElementById('upload-content').style.display = 'block';
-                document.getElementById('editor-content').style.display = 'none';
-            });
-
-            // File upload functionality
+            // DOM Elements
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
             const dropArea = document.getElementById('drop-area');
             const fileInput = document.getElementById('file-input');
             const browseBtn = document.getElementById('browse-btn');
             const fileInfo = document.getElementById('file-info');
             const fileName = document.getElementById('file-name');
             const clearFileBtn = document.getElementById('clear-file');
+            const codeInput = document.getElementById('codeInput');
+            const scanBtn = document.getElementById('scan-btn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const languageSelect = document.getElementById('language-select');
+
+            // State
             let selectedFile = null;
 
-            // Browse button click
+            // Tab Switching
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+
+            // File Upload Functionality
             browseBtn.addEventListener('click', () => {
                 fileInput.click();
             });
 
-            // File input change
             fileInput.addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
                     handleFile(e.target.files[0]);
                 }
             });
 
-            // Drag and drop events
+            // Drag and Drop Events
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropArea.addEventListener(eventName, preventDefaults, false);
             });
@@ -510,13 +613,11 @@ result = vulnerable_function("1+1")
             });
 
             function highlight() {
-                dropArea.style.borderColor = 'var(--primary)';
-                dropArea.style.backgroundColor = '#e3f2fd';
+                dropArea.classList.add('drag-over');
             }
 
             function unhighlight() {
-                dropArea.style.borderColor = 'var(--border)';
-                dropArea.style.backgroundColor = '#f8f9fa';
+                dropArea.classList.remove('drag-over');
             }
 
             // Handle dropped file
@@ -533,14 +634,13 @@ result = vulnerable_function("1+1")
                 if (file.name.endsWith('.py') || file.name.endsWith('.js')) {
                     selectedFile = file;
                     fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
-                    fileInfo.style.display = 'block';
+                    fileInfo.classList.add('show');
                     
                     // Auto-read file content
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        document.getElementById('codeInput').value = e.target.result;
+                        codeInput.value = e.target.result;
                         // Auto-select language based on file extension
-                        const languageSelect = document.getElementById('language-select');
                         languageSelect.value = file.name.endsWith('.py') ? 'python' : 'javascript';
                     };
                     reader.readAsText(file);
@@ -552,7 +652,7 @@ result = vulnerable_function("1+1")
             // Clear selected file
             clearFileBtn.addEventListener('click', () => {
                 selectedFile = null;
-                fileInfo.style.display = 'none';
+                fileInfo.classList.remove('show');
                 fileInput.value = '';
             });
 
@@ -565,119 +665,96 @@ result = vulnerable_function("1+1")
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
 
-            // Main functionality
-            const scanBtn = document.getElementById('scanBtn');
-            const codeInput = document.getElementById('codeInput');
-            const resultsDiv = document.getElementById('results');
-            const loadingDiv = document.getElementById('loading');
-
+            // Scan Functionality
             scanBtn.addEventListener('click', async function() {
-                const activeTab = document.querySelector('.tab-btn.active').id;
-                
-                if (activeTab === 'editor-tab') {
-                    // Use code from editor
-                    const code = codeInput.value.trim();
-                    if (!code) {
-                        showToast('Please enter some code to scan', 'error');
-                        return;
-                    }
-                    await scanCode(code, document.getElementById('language-select').value);
-                } else {
-                    // Use code from file or editor
-                    const code = codeInput.value.trim();
-                    if (!code) {
-                        showToast('Please select a file or enter code', 'error');
-                        return;
-                    }
-                    const language = selectedFile ? 
-                        (selectedFile.name.endsWith('.py') ? 'python' : 'javascript') :
-                        document.getElementById('language-select').value;
-                    await scanCode(code, language);
+                const code = codeInput.value.trim();
+                if (!code) {
+                    showToast('Please enter some code to scan', 'error');
+                    return;
                 }
+                
+                const language = languageSelect.value;
+                await scanCode(code, language);
             });
 
             async function scanCode(code, language) {
                 // Show loading
-                loadingDiv.style.display = 'block';
+                loading.classList.add('show');
                 scanBtn.disabled = true;
 
                 try {
-                    // In a real implementation, this would call your backend API
-                    // For now, we'll simulate the response
-                    await simulateScan(code, language);
+                    // Simulate API delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Generate mock results based on the code content
+                    const findings = [];
+                    
+                    if (code.includes('API_KEY') || code.includes('API_TOKEN')) {
+                        findings.push({
+                            type: 'HARDCODED_SECRET',
+                            description: 'Hardcoded API key or token detected',
+                            severity: 'Critical',
+                            line: code.split('\n').findIndex(line => line.includes('API_KEY') || line.includes('API_TOKEN')) + 1,
+                            code_snippet: code.split('\n').find(line => line.includes('API_KEY') || line.includes('API_TOKEN')) || ''
+                        });
+                    }
+                    
+                    if (code.includes('eval(')) {
+                        findings.push({
+                            type: 'DANGEROUS_EVAL',
+                            description: 'Use of eval() detected - potential code injection',
+                            severity: 'High',
+                            line: code.split('\n').findIndex(line => line.includes('eval(')) + 1,
+                            code_snippet: code.split('\n').find(line => line.includes('eval(')) || ''
+                        });
+                    }
+                    
+                    if (code.includes('innerHTML')) {
+                        findings.push({
+                            type: 'XSS_VULNERABILITY',
+                            description: 'Potential XSS via innerHTML assignment',
+                            severity: 'High',
+                            line: code.split('\n').findIndex(line => line.includes('innerHTML')) + 1,
+                            code_snippet: code.split('\n').find(line => line.includes('innerHTML')) || ''
+                        });
+                    }
+                    
+                    if (code.includes('subprocess.') && code.includes('shell=True')) {
+                        findings.push({
+                            type: 'COMMAND_INJECTION',
+                            description: 'Potential command injection with shell=True',
+                            severity: 'Critical',
+                            line: code.split('\n').findIndex(line => line.includes('shell=True')) + 1,
+                            code_snippet: code.split('\n').find(line => line.includes('shell=True')) || ''
+                        });
+                    }
+
+                    // If no findings, add a generic one for demo
+                    if (findings.length === 0) {
+                        findings.push({
+                            type: 'GENERIC_ISSUE',
+                            description: 'Generic security issue detected',
+                            severity: 'Medium',
+                            line: 1,
+                            code_snippet: code.split('\n')[0] || ''
+                        });
+                    }
+
+                    displayResults({
+                        triage_score: findings.length > 0 ? Math.min(10, findings.length * 2.5) : 2.0,
+                        total_findings: findings.length,
+                        risk_level: findings.some(f => f.severity === 'Critical') ? 'Critical' : 
+                                   findings.some(f => f.severity === 'High') ? 'High' : 'Medium',
+                        findings: findings
+                    });
+                    
+                    showToast(`Scan complete! Found ${findings.length} issues.`, 'success');
                 } catch (error) {
                     showToast('Error scanning code: ' + error.message, 'error');
                 } finally {
-                    loadingDiv.style.display = 'none';
+                    loading.classList.remove('show');
                     scanBtn.disabled = false;
                 }
-            }
-
-            async function simulateScan(code, language) {
-                // Simulate API delay
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                // Generate mock results based on the code content
-                const findings = [];
-                
-                if (code.includes('API_KEY') || code.includes('API_TOKEN')) {
-                    findings.push({
-                        type: 'HARDCODED_SECRET',
-                        description: 'Hardcoded API key or token detected',
-                        severity: 'Critical',
-                        line: code.split('\n').findIndex(line => line.includes('API_KEY') || line.includes('API_TOKEN')) + 1,
-                        code_snippet: code.split('\n').find(line => line.includes('API_KEY') || line.includes('API_TOKEN')) || ''
-                    });
-                }
-                
-                if (code.includes('eval(')) {
-                    findings.push({
-                        type: 'DANGEROUS_EVAL',
-                        description: 'Use of eval() detected - potential code injection',
-                        severity: 'High',
-                        line: code.split('\n').findIndex(line => line.includes('eval(')) + 1,
-                        code_snippet: code.split('\n').find(line => line.includes('eval(')) || ''
-                    });
-                }
-                
-                if (code.includes('innerHTML')) {
-                    findings.push({
-                        type: 'XSS_VULNERABILITY',
-                        description: 'Potential XSS via innerHTML assignment',
-                        severity: 'High',
-                        line: code.split('\n').findIndex(line => line.includes('innerHTML')) + 1,
-                        code_snippet: code.split('\n').find(line => line.includes('innerHTML')) || ''
-                    });
-                }
-                
-                if (code.includes('subprocess.') && code.includes('shell=True')) {
-                    findings.push({
-                        type: 'COMMAND_INJECTION',
-                        description: 'Potential command injection with shell=True',
-                        severity: 'Critical',
-                        line: code.split('\n').findIndex(line => line.includes('shell=True')) + 1,
-                        code_snippet: code.split('\n').find(line => line.includes('shell=True')) || ''
-                    });
-                }
-
-                // If no findings, add a generic one for demo
-                if (findings.length === 0) {
-                    findings.push({
-                        type: 'GENERIC_ISSUE',
-                        description: 'Generic security issue detected',
-                        severity: 'Medium',
-                        line: 1,
-                        code_snippet: code.split('\n')[0] || ''
-                    });
-                }
-
-                displayResults({
-                    triage_score: findings.length > 0 ? Math.min(10, findings.length * 2.5) : 2.0,
-                    total_findings: findings.length,
-                    risk_level: findings.some(f => f.severity === 'Critical') ? 'Critical' : 
-                               findings.some(f => f.severity === 'High') ? 'High' : 'Medium',
-                    findings: findings
-                });
             }
 
             function displayResults(result) {
@@ -732,8 +809,7 @@ result = vulnerable_function("1+1")
                     `;
                 }
 
-                resultsDiv.innerHTML = html;
-                showToast(`Scan complete! Found ${result.total_findings} issues.`, 'success');
+                results.innerHTML = html;
             }
 
             function getRiskColor(riskLevel) {
