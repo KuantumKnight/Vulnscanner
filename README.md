@@ -19,8 +19,8 @@ A comprehensive static analysis tool that automatically detects, scores, and pri
 
 ### Installation
 ```bash
-git clone https://github.com/KuantumKnight/Smart-Code-Vulnerability-Triage-System.git
-cd Smart-Code-Vulnerability-Triage-System
+git clone https://github.com/KuantumKnight/Vulnscanner.git
+cd Vulnscanner
 pip install -r requirements.txt
 ```
 ### Usage
@@ -139,3 +139,4 @@ smart-code-triage/
     ├── __init__.py
     └── helpers.py
 ```
+
