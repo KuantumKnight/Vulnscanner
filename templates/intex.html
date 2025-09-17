@@ -9,7 +9,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <div class="header-content">
                 <h1><i class="fas fa-shield-alt"></i> Smart Code Vulnerability Triage</h1>
@@ -17,34 +16,13 @@
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Scan Options -->
             <section class="scan-section">
                 <div class="tabs">
-                    <button class="tab-button active" data-tab="file-upload">File Upload</button>
-                    <button class="tab-button" data-tab="code-editor">Code Editor</button>
+                    <button class="tab-button active" data-tab="code-editor">Code Editor</button>
                 </div>
 
-                <!-- File Upload Tab -->
-                <div class="tab-content active" id="file-upload-tab">
-                    <div class="upload-area" id="drop-area">
-                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                        <h3>Drag & Drop your code files here</h3>
-                        <p>Supports .py and .js files</p>
-                        <p class="small">or</p>
-                        <button class="btn btn-primary" id="browse-btn">Browse Files</button>
-                        <input type="file" id="file-input" accept=".py,.js" multiple style="display: none;">
-                    </div>
-                    <div class="file-info" id="file-info" style="display: none;">
-                        <h4>Selected Files:</h4>
-                        <ul id="file-list"></ul>
-                        <button class="btn btn-secondary" id="clear-files">Clear</button>
-                    </div>
-                </div>
-
-                <!-- Code Editor Tab -->
-                <div class="tab-content" id="code-editor-tab">
+                <div class="tab-content active" id="code-editor-tab">
                     <div class="editor-container">
                         <div class="editor-header">
                             <select id="language-select">
@@ -72,7 +50,6 @@ result = vulnerable_function("1+1")</textarea>
                 </div>
             </section>
 
-            <!-- Results Section -->
             <section class="results-section" id="results-section" style="display: none;">
                 <div class="results-header">
                     <h2>Scan Results</h2>
@@ -88,30 +65,22 @@ result = vulnerable_function("1+1")</textarea>
                         <h3>Risk Level</h3>
                         <div class="card-value" id="risk-level">Low</div>
                     </div>
-                    <div class="card summary-card">
-                        <h3>Files Scanned</h3>
-                        <div class="card-value" id="files-scanned">0</div>
-                    </div>
                 </div>
 
                 <div class="findings-container">
                     <h3>Vulnerabilities Found</h3>
                     <div class="findings-list" id="findings-list">
-                        <!-- Findings will be populated here -->
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- Footer -->
         <footer class="footer">
             <p>Smart Code Vulnerability Triage System &copy; 2024 | Hackathon Project</p>
         </footer>
     </div>
 
-    <!-- Toast Notifications -->
     <div class="toast-container" id="toast-container"></div>
-
     <script src="/static/js/main.js"></script>
 </body>
 </html>
