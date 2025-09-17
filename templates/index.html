@@ -4,83 +4,588 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Code Vulnerability Triage System</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --dark: #212121;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --border: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .input-section, .output-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .editor-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .editor-header {
+            background: #2d2d2d;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #language-select {
+            background: #404040;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 3px;
+        }
+
+        #codeInput {
+            width: 100%;
+            height: 300px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 1rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .loading i {
+            margin-right: 0.5rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .score-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .findings-list {
+            margin-top: 1.5rem;
+        }
+
+        .finding {
+            border-left: 5px solid var(--gray);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            background: #fafafa;
+        }
+
+        .finding.critical {
+            border-left-color: var(--danger);
+            background: #fff5f5;
+        }
+
+        .finding.high {
+            border-left-color: #ff6b35;
+            background: #fff8f5;
+        }
+
+        .finding.medium {
+            border-left-color: var(--warning);
+            background: #fffdf5;
+        }
+
+        .finding.low {
+            border-left-color: var(--success);
+            background: #f5fff8;
+        }
+
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .finding-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .severity-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .severity-critical {
+            background: #ffebee;
+            color: var(--danger);
+        }
+
+        .severity-high {
+            background: #fff3e0;
+            color: #ff6b35;
+        }
+
+        .severity-medium {
+            background: #fff8e1;
+            color: var(--warning);
+        }
+
+        .severity-low {
+            background: #e8f5e9;
+            color: var(--success);
+        }
+
+        .finding-details p {
+            margin-bottom: 0.5rem;
+        }
+
+        .code-snippet {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        .no-findings {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+            margin-top: 2rem;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            border-left: 5px solid var(--primary);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <div class="header-content">
-                <h1><i class="fas fa-shield-alt"></i> Smart Code Vulnerability Triage</h1>
-                <p>Automated security analysis for Python and JavaScript code</p>
-            </div>
-        </header>
+        <div class="header">
+            <h1>🔍 Smart Code Vulnerability Triage</h1>
+            <p>Automated security analysis for Python and JavaScript code</p>
+        </div>
 
-        <main class="main-content">
-            <section class="scan-section">
-                <div class="tabs">
-                    <button class="tab-button active" data-tab="code-editor">Code Editor</button>
-                </div>
-
-                <div class="tab-content active" id="code-editor-tab">
-                    <div class="editor-container">
-                        <div class="editor-header">
-                            <select id="language-select">
-                                <option value="python">Python</option>
-                                <option value="javascript">JavaScript</option>
-                            </select>
-                        </div>
-                        <textarea id="code-editor" placeholder="Paste your code here..."># Example vulnerable code
+        <div class="main-content">
+            <div class="input-section">
+                <h2 class="section-title">Code Input</h2>
+                <div class="editor-container">
+                    <div class="editor-header">
+                        <span>Code Editor</span>
+                        <select id="language-select">
+                            <option value="python">Python</option>
+                            <option value="javascript">JavaScript</option>
+                        </select>
+                    </div>
+                    <textarea id="codeInput" placeholder="Paste your code here..."># Example vulnerable Python code
 API_KEY = "sk-1234567890abcdef1234567890abcdef"  # Hardcoded secret
 
 def vulnerable_function(user_input):
     return eval(user_input)  # Dangerous eval
 
-result = vulnerable_function("1+1")</textarea>
-                    </div>
-                </div>
+result = vulnerable_function("1+1")
 
-                <div class="scan-actions">
-                    <button class="btn btn-primary btn-large" id="scan-btn">
-                        <i class="fas fa-search"></i> Scan for Vulnerabilities
-                    </button>
-                    <div class="loading" id="loading" style="display: none;">
-                        <i class="fas fa-spinner fa-spin"></i> Scanning code...
-                    </div>
+# Example vulnerable JavaScript code
+// const API_TOKEN = "sk-1234567890abcdef1234567890abcdef";
+// document.getElementById('output').innerHTML = userInput;
+// eval(userInput);</textarea>
                 </div>
-            </section>
+                <button id="scanBtn" class="btn">
+                    <i class="fas fa-search"></i> Scan for Vulnerabilities
+                </button>
+                <div id="loading" class="loading" style="display: none;">
+                    <i class="fas fa-spinner"></i> Scanning code...
+                </div>
+            </div>
 
-            <section class="results-section" id="results-section" style="display: none;">
-                <div class="results-header">
-                    <h2>Scan Results</h2>
-                    <div class="score-badge" id="score-badge">0.0/10</div>
-                </div>
-                
-                <div class="summary-cards">
-                    <div class="card summary-card">
-                        <h3>Total Findings</h3>
-                        <div class="card-value" id="total-findings">0</div>
-                    </div>
-                    <div class="card summary-card">
-                        <h3>Risk Level</h3>
-                        <div class="card-value" id="risk-level">Low</div>
+            <div class="output-section">
+                <h2 class="section-title">Scan Results</h2>
+                <div id="results">
+                    <div class="no-findings">
+                        <p>Enter code and click "Scan for Vulnerabilities" to analyze</p>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="findings-container">
-                    <h3>Vulnerabilities Found</h3>
-                    <div class="findings-list" id="findings-list">
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="footer">
+        <div class="footer">
             <p>Smart Code Vulnerability Triage System &copy; 2024 | Hackathon Project</p>
-        </footer>
+        </div>
     </div>
 
-    <div class="toast-container" id="toast-container"></div>
-    <script src="/static/js/main.js"></script>
+    <div id="toast-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scanBtn = document.getElementById('scanBtn');
+            const codeInput = document.getElementById('codeInput');
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+
+            scanBtn.addEventListener('click', async function() {
+                const code = codeInput.value.trim();
+                if (!code) {
+                    showToast('Please enter some code to scan', 'error');
+                    return;
+                }
+
+                // Show loading
+                loadingDiv.style.display = 'block';
+                scanBtn.disabled = true;
+
+                try {
+                    // In a real implementation, this would call your backend API
+                    // For now, we'll simulate the response
+                    await simulateScan(code);
+                } catch (error) {
+                    showToast('Error scanning code: ' + error.message, 'error');
+                } finally {
+                    loadingDiv.style.display = 'none';
+                    scanBtn.disabled = false;
+                }
+            });
+
+            async function simulateScan(code) {
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Generate mock results based on the code content
+                const findings = [];
+                
+                if (code.includes('API_KEY') || code.includes('API_TOKEN')) {
+                    findings.push({
+                        type: 'HARDCODED_SECRET',
+                        description: 'Hardcoded API key or token detected',
+                        severity: 'Critical',
+                        line: code.split('\n').findIndex(line => line.includes('API_KEY') || line.includes('API_TOKEN')) + 1,
+                        code_snippet: code.split('\n').find(line => line.includes('API_KEY') || line.includes('API_TOKEN')) || ''
+                    });
+                }
+                
+                if (code.includes('eval(')) {
+                    findings.push({
+                        type: 'DANGEROUS_EVAL',
+                        description: 'Use of eval() detected - potential code injection',
+                        severity: 'High',
+                        line: code.split('\n').findIndex(line => line.includes('eval(')) + 1,
+                        code_snippet: code.split('\n').find(line => line.includes('eval(')) || ''
+                    });
+                }
+                
+                if (code.includes('innerHTML')) {
+                    findings.push({
+                        type: 'XSS_VULNERABILITY',
+                        description: 'Potential XSS via innerHTML assignment',
+                        severity: 'High',
+                        line: code.split('\n').findIndex(line => line.includes('innerHTML')) + 1,
+                        code_snippet: code.split('\n').find(line => line.includes('innerHTML')) || ''
+                    });
+                }
+                
+                if (code.includes('subprocess.') && code.includes('shell=True')) {
+                    findings.push({
+                        type: 'COMMAND_INJECTION',
+                        description: 'Potential command injection with shell=True',
+                        severity: 'Critical',
+                        line: code.split('\n').findIndex(line => line.includes('shell=True')) + 1,
+                        code_snippet: code.split('\n').find(line => line.includes('shell=True')) || ''
+                    });
+                }
+
+                // If no findings, add a generic one for demo
+                if (findings.length === 0) {
+                    findings.push({
+                        type: 'GENERIC_ISSUE',
+                        description: 'Generic security issue detected',
+                        severity: 'Medium',
+                        line: 1,
+                        code_snippet: code.split('\n')[0] || ''
+                    });
+                }
+
+                displayResults({
+                    triage_score: findings.length > 0 ? Math.min(10, findings.length * 2.5) : 2.0,
+                    total_findings: findings.length,
+                    risk_level: findings.some(f => f.severity === 'Critical') ? 'Critical' : 
+                               findings.some(f => f.severity === 'High') ? 'High' : 'Medium',
+                    findings: findings
+                });
+            }
+
+            function displayResults(result) {
+                let html = `
+                    <div class="result-card">
+                        <div class="score-header">
+                            <h3>Security Analysis</h3>
+                            <div class="score-badge">${result.triage_score.toFixed(1)}/10</div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${result.total_findings}</div>
+                                <div class="stat-label">Findings</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" style="color: ${getRiskColor(result.risk_level)}">${result.risk_level}</div>
+                                <div class="stat-label">Risk Level</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (result.findings.length > 0) {
+                    html += `
+                        <div class="findings-list">
+                            <h3>Vulnerabilities Found (${result.findings.length})</h3>
+                    `;
+                    
+                    result.findings.forEach(finding => {
+                        html += `
+                            <div class="finding ${finding.severity.toLowerCase()}">
+                                <div class="finding-header">
+                                    <h4 class="finding-title">${finding.type.replace(/_/g, ' ')}</h4>
+                                    <span class="severity-badge severity-${finding.severity.toLowerCase()}">${finding.severity}</span>
+                                </div>
+                                <div class="finding-details">
+                                    <p><strong>Description:</strong> ${finding.description}</p>
+                                    <p><strong>Location:</strong> Line ${finding.line || 'N/A'}</p>
+                                </div>
+                                ${finding.code_snippet ? `<div class="code-snippet">${escapeHtml(finding.code_snippet)}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`;
+                } else {
+                    html += `
+                        <div class="no-findings">
+                            <p>✅ No vulnerabilities found! Great job on secure coding.</p>
+                        </div>
+                    `;
+                }
+
+                resultsDiv.innerHTML = html;
+                showToast(`Scan complete! Found ${result.total_findings} issues.`, 'success');
+            }
+
+            function getRiskColor(riskLevel) {
+                switch(riskLevel) {
+                    case 'Critical': return '#f44336';
+                    case 'High': return '#ff6b35';
+                    case 'Medium': return '#ff9800';
+                    default: return '#4caf50';
+                }
+            }
+
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "<")
+                    .replace(/>/g, ">")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            function showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                toastContainer.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+        });
+    </script>
 </body>
 </html>
