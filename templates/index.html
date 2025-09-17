@@ -159,6 +159,20 @@
             background: #f8f9fa;
         }
 
+        /* Website Scan Tab */
+        .website-scan {
+            margin-bottom: 1.5rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
         /* Drag and Drop Area */
         .upload-area {
             border: 2px dashed var(--border);
@@ -459,13 +473,25 @@
         #file-input {
             display: none;
         }
+
+        .scan-progress {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .scan-progress.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-shield-alt"></i> Vulnscanner</h1>
-            <p>Automated vulnerability analysis</p>
+            <p>Automated security analysis for Python, JavaScript, and websites</p>
         </div>
 
         <div class="main-content">
@@ -476,6 +502,7 @@
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="editor">Code Editor</button>
                     <button class="tab-btn" data-tab="upload">File Upload</button>
+                    <button class="tab-btn" data-tab="website">Website Scan</button>
                 </div>
                 
                 <!-- Code Editor Tab -->
@@ -488,19 +515,11 @@
                                 <option value="javascript">JavaScript</option>
                             </select>
                         </div>
-                        <textarea id="codeInput" placeholder="Paste your code here..."># Example vulnerable Python code
-API_KEY = "sk-1234567890abcdef1234567890abcdef"  # Hardcoded secret
-
-def vulnerable_function(user_input):
-    return eval(user_input)  # Dangerous eval
-
-result = vulnerable_function("1+1")
-
-# Example vulnerable JavaScript code
-// const API_TOKEN = "sk-1234567890abcdef1234567890abcdef";
-// document.getElementById('output').innerHTML = userInput;
-// eval(userInput);</textarea>
+                        <textarea id="codeInput" placeholder="Paste your code here..."># Enter your code here to scan for vulnerabilities</textarea>
                     </div>
+                    <button class="btn" id="scan-code-btn">
+                        <i class="fas fa-search"></i> Scan Code
+                    </button>
                 </div>
                 
                 <!-- File Upload Tab -->
@@ -508,25 +527,38 @@ result = vulnerable_function("1+1")
                     <div class="upload-area" id="drop-area">
                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         <h3>Drag & Drop your code files here</h3>
-                        <p>Supports .py and .js files</p>
+                        <p>Supports .py, .js, and .html files</p>
                         <p style="color: var(--gray); margin: 1rem 0;">or</p>
                         <button class="browse-btn" id="browse-btn">
                             <i class="fas fa-folder-open"></i> Browse Files
                         </button>
-                        <input type="file" id="file-input" accept=".py,.js">
+                        <input type="file" id="file-input" accept=".py,.js,.html">
                     </div>
                     <div class="file-info" id="file-info">
                         <h4>Selected File:</h4>
                         <p id="file-name"></p>
                         <button class="clear-btn" id="clear-file">Clear Selection</button>
                     </div>
+                    <button class="btn" id="scan-file-btn">
+                        <i class="fas fa-file-code"></i> Scan File
+                    </button>
                 </div>
                 
-                <button class="btn" id="scan-btn">
-                    <i class="fas fa-search"></i> Scan for Vulnerabilities
-                </button>
+                <!-- Website Scan Tab -->
+                <div id="website-tab" class="tab-content">
+                    <div class="website-scan">
+                        <input type="url" id="website-url" class="url-input" placeholder="https://example.com" />
+                        <button class="btn" id="scan-website-btn">
+                            <i class="fas fa-globe"></i> Scan Website
+                        </button>
+                        <div class="scan-progress" id="scan-progress">
+                            <p><i class="fas fa-spinner fa-spin"></i> Scanning website...</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="loading" id="loading">
-                    <i class="fas fa-spinner"></i> Scanning code...
+                    <i class="fas fa-spinner"></i> Scanning...
                 </div>
             </div>
 
@@ -534,14 +566,15 @@ result = vulnerable_function("1+1")
                 <h2 class="section-title">Scan Results</h2>
                 <div id="results">
                     <div class="no-findings">
-                        <p>Enter code and click "Scan for Vulnerabilities" to analyze</p>
+                        <p>Enter code, upload a file, or scan a website to analyze</p>
+                        <p style="margin-top: 1rem;">Safe code like <code>print('hello')</code> will show 0 vulnerabilities</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            <p>Vulnscanner &copy; 2025 | Hackathon Project</p>
+            <p>Smart Code Vulnerability Triage System &copy; 2024 | Hackathon Project</p>
         </div>
     </div>
 
@@ -559,10 +592,14 @@ result = vulnerable_function("1+1")
             const fileName = document.getElementById('file-name');
             const clearFileBtn = document.getElementById('clear-file');
             const codeInput = document.getElementById('codeInput');
-            const scanBtn = document.getElementById('scan-btn');
+            const scanCodeBtn = document.getElementById('scan-code-btn');
+            const scanFileBtn = document.getElementById('scan-file-btn');
+            const scanWebsiteBtn = document.getElementById('scan-website-btn');
             const loading = document.getElementById('loading');
+            const scanProgress = document.getElementById('scan-progress');
             const results = document.getElementById('results');
             const languageSelect = document.getElementById('language-select');
+            const websiteUrl = document.getElementById('website-url');
 
             // State
             let selectedFile = null;
@@ -631,7 +668,7 @@ result = vulnerable_function("1+1")
 
             // Handle file selection
             function handleFile(file) {
-                if (file.name.endsWith('.py') || file.name.endsWith('.js')) {
+                if (file.name.endsWith('.py') || file.name.endsWith('.js') || file.name.endsWith('.html')) {
                     selectedFile = file;
                     fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
                     fileInfo.classList.add('show');
@@ -641,11 +678,15 @@ result = vulnerable_function("1+1")
                     reader.onload = function(e) {
                         codeInput.value = e.target.result;
                         // Auto-select language based on file extension
-                        languageSelect.value = file.name.endsWith('.py') ? 'python' : 'javascript';
+                        if (file.name.endsWith('.py')) {
+                            languageSelect.value = 'python';
+                        } else if (file.name.endsWith('.js')) {
+                            languageSelect.value = 'javascript';
+                        }
                     };
                     reader.readAsText(file);
                 } else {
-                    showToast('Please select a .py or .js file', 'error');
+                    showToast('Please select a .py, .js, or .html file', 'error');
                 }
             }
 
@@ -665,8 +706,58 @@ result = vulnerable_function("1+1")
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
 
-            // Scan Functionality
-            scanBtn.addEventListener('click', async function() {
+            // Website Scanning Functionality
+            scanWebsiteBtn.addEventListener('click', async function() {
+                const url = websiteUrl.value.trim();
+                if (!url) {
+                    showToast('Please enter a website URL', 'error');
+                    return;
+                }
+                
+                try {
+                    // Validate URL format
+                    new URL(url.startsWith('http') ? url : 'https://' + url);
+                } catch (e) {
+                    showToast('Please enter a valid URL (e.g., https://example.com)', 'error');
+                    return;
+                }
+                
+                await scanWebsite(url);
+            });
+
+            async function scanWebsite(url) {
+                // Show progress
+                scanProgress.classList.add('show');
+                scanWebsiteBtn.disabled = true;
+                
+                try {
+                    // Call backend API
+                    const response = await fetch('/api/scan-website', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ url: url })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to scan website');
+                    }
+                    
+                    const data = await response.json();
+                    displayResults(data);
+                    showToast('Website scan complete!', 'success');
+                    
+                } catch (error) {
+                    showToast('Error scanning website: ' + error.message, 'error');
+                } finally {
+                    scanProgress.classList.remove('show');
+                    scanWebsiteBtn.disabled = false;
+                }
+            }
+
+            // Code Scanning Functionality
+            scanCodeBtn.addEventListener('click', async function() {
                 const code = codeInput.value.trim();
                 if (!code) {
                     showToast('Please enter some code to scan', 'error');
@@ -680,24 +771,27 @@ result = vulnerable_function("1+1")
             async function scanCode(code, language) {
                 // Show loading
                 loading.classList.add('show');
-                scanBtn.disabled = true;
+                scanCodeBtn.disabled = true;
 
                 try {
-                    // Simulate API delay
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    
-                    // Generate accurate mock results based on the code content
-                    const findings = detectVulnerabilities(code, language);
-                    
-                    displayResults({
-                        triage_score: calculateTriageScore(findings),
-                        total_findings: findings.length,
-                        risk_level: getRiskLevel(findings),
-                        findings: findings
+                    // Call backend API
+                    const response = await fetch('/api/scan-code', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ code: code, language: language })
                     });
                     
-                    if (findings.length > 0) {
-                        showToast(`Scan complete! Found ${findings.length} issues.`, 'success');
+                    if (!response.ok) {
+                        throw new Error('Failed to scan code');
+                    }
+                    
+                    const data = await response.json();
+                    displayResults(data);
+                    
+                    if (data.total_findings > 0) {
+                        showToast(`Scan complete! Found ${data.total_findings} issues.`, 'success');
                     } else {
                         showToast('Scan complete! No vulnerabilities found.', 'success');
                     }
@@ -705,132 +799,69 @@ result = vulnerable_function("1+1")
                     showToast('Error scanning code: ' + error.message, 'error');
                 } finally {
                     loading.classList.remove('show');
-                    scanBtn.disabled = false;
+                    scanCodeBtn.disabled = false;
                 }
             }
 
-            function detectVulnerabilities(code, language) {
-                const findings = [];
-                const lines = code.split('\n');
+            // File Scanning Functionality
+            scanFileBtn.addEventListener('click', async function() {
+                if (!selectedFile) {
+                    showToast('Please select a file to scan', 'error');
+                    return;
+                }
                 
-                // Check for hardcoded secrets
-                const secretPatterns = [
-                    { pattern: /API[_-]?KEY\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'API_KEY' },
-                    { pattern: /SECRET[_-]?KEY\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'SECRET_KEY' },
-                    { pattern: /TOKEN\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'TOKEN' },
-                    { pattern: /PASSWORD\s*[:=]\s*["'][^"'\s]{6,}["']/i, name: 'PASSWORD' }
-                ];
-                
-                lines.forEach((line, index) => {
-                    // Hardcoded secrets
-                    secretPatterns.forEach(secret => {
-                        if (secret.pattern.test(line)) {
-                            findings.push({
-                                type: 'HARDCODED_SECRET',
-                                description: `Hardcoded ${secret.name} detected`,
-                                severity: 'Critical',
-                                line: index + 1,
-                                code_snippet: line.trim()
-                            });
-                        }
+                await scanFile(selectedFile);
+            });
+
+            async function scanFile(file) {
+                // Show loading
+                loading.classList.add('show');
+                scanFileBtn.disabled = true;
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    // Call backend API
+                    const response = await fetch('/api/scan-file', {
+                        method: 'POST',
+                        body: formData
                     });
                     
-                    // Dangerous eval usage
-                    if (line.includes('eval(') && !line.includes('//') && !line.includes('#')) {
-                        findings.push({
-                            type: 'DANGEROUS_EVAL',
-                            description: 'Use of eval() detected - potential code injection',
-                            severity: 'High',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
+                    if (!response.ok) {
+                        throw new Error('Failed to scan file');
                     }
                     
-                    // XSS vulnerabilities (JavaScript)
-                    if (language === 'javascript' && line.includes('innerHTML') && line.includes('=')) {
-                        findings.push({
-                            type: 'XSS_VULNERABILITY',
-                            description: 'Potential XSS via innerHTML assignment',
-                            severity: 'High',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
-                    }
+                    const data = await response.json();
+                    displayResults(data);
                     
-                    // Command injection (Python)
-                    if (language === 'python' && line.includes('subprocess.') && line.includes('shell=True')) {
-                        findings.push({
-                            type: 'COMMAND_INJECTION',
-                            description: 'Potential command injection with shell=True',
-                            severity: 'Critical',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
+                    if (data.total_findings > 0) {
+                        showToast(`File scan complete! Found ${data.total_findings} issues.`, 'success');
+                    } else {
+                        showToast('File scan complete! No vulnerabilities found.', 'success');
                     }
-                    
-                    // SQL Injection patterns
-                    if ((line.includes('execute') || line.includes('query')) && 
-                        (line.includes('+') || line.includes('format(') || line.includes('%'))) {
-                        findings.push({
-                            type: 'SQL_INJECTION',
-                            description: 'Potential SQL injection via string concatenation',
-                            severity: 'High',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
-                    }
-                    
-                    // Weak crypto
-                    if (line.includes('md5(') || line.includes('sha1(') || line.includes('.md5(') || line.includes('.sha1(')) {
-                        findings.push({
-                            type: 'WEAK_CRYPTO',
-                            description: 'Weak cryptographic algorithm (MD5/SHA1) detected',
-                            severity: 'Medium',
-                            line: index + 1,
-                            code_snippet: line.trim()
-                        });
-                    }
-                });
-                
-                return findings;
-            }
-
-            function calculateTriageScore(findings) {
-                if (findings.length === 0) return 0.0;
-                
-                const severityWeights = {
-                    'Critical': 10,
-                    'High': 7,
-                    'Medium': 4,
-                    'Low': 1
-                };
-                
-                const totalWeight = findings.reduce((sum, finding) => 
-                    sum + (severityWeights[finding.severity] || 1), 0);
-                const maxPossible = findings.length * 10;
-                
-                return (totalWeight / maxPossible) * 10;
-            }
-
-            function getRiskLevel(findings) {
-                if (findings.length === 0) return 'Low';
-                
-                const hasCritical = findings.some(f => f.severity === 'Critical');
-                const hasHigh = findings.some(f => f.severity === 'High');
-                const hasMedium = findings.some(f => f.severity === 'Medium');
-                
-                if (hasCritical) return 'Critical';
-                if (hasHigh) return 'High';
-                if (hasMedium) return 'Medium';
-                return 'Low';
+                } catch (error) {
+                    showToast('Error scanning file: ' + error.message, 'error');
+                } finally {
+                    loading.classList.remove('show');
+                    scanFileBtn.disabled = false;
+                }
             }
 
             function displayResults(result) {
                 let html = `
                     <div class="result-card">
                         <div class="score-header">
-                            <h3>Security Analysis</h3>
-                            <div class="score-badge">${result.triage_score.toFixed(1)}/10</div>
+                            <h3>Security Analysis`;
+                
+                if (result.scanned_url) {
+                    html += ` - <span style="font-size: 1rem; font-weight: normal;">${new URL(result.scanned_url).hostname}</span>`;
+                } else if (result.filename) {
+                    html += ` - <span style="font-size: 1rem; font-weight: normal;">${result.filename}</span>`;
+                }
+                
+                html += `</h3>
+                            <div class="score-badge">${result.triage_score}/10</div>
                         </div>
                         
                         <div class="stats-grid">
@@ -846,7 +877,7 @@ result = vulnerable_function("1+1")
                     </div>
                 `;
 
-                if (result.findings.length > 0) {
+                if (result.findings && result.findings.length > 0) {
                     html += `
                         <div class="findings-list">
                             <h3>Vulnerabilities Found (${result.findings.length})</h3>
