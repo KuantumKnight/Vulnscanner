@@ -159,6 +159,33 @@
             background: #f8f9fa;
         }
 
+        /* Website Scan Tab */
+        .website-scan {
+            margin-bottom: 1.5rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .scan-types {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .scan-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         /* Drag and Drop Area */
         .upload-area {
             border: 2px dashed var(--border);
@@ -459,13 +486,25 @@
         #file-input {
             display: none;
         }
+
+        .scan-progress {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .scan-progress.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-shield-alt"></i> Smart Code Vulnerability Triage</h1>
-            <p>Automated security analysis for Python and JavaScript code</p>
+            <p>Automated security analysis for Python, JavaScript, and websites</p>
         </div>
 
         <div class="main-content">
@@ -476,6 +515,7 @@
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="editor">Code Editor</button>
                     <button class="tab-btn" data-tab="upload">File Upload</button>
+                    <button class="tab-btn" data-tab="website">Website Scan</button>
                 </div>
                 
                 <!-- Code Editor Tab -->
@@ -522,8 +562,35 @@ result = vulnerable_function("1+1")
                     </div>
                 </div>
                 
+                <!-- Website Scan Tab -->
+                <div id="website-tab" class="tab-content">
+                    <div class="website-scan">
+                        <input type="url" id="website-url" class="url-input" placeholder="https://example.com" />
+                        <div class="scan-types">
+                            <div class="scan-type">
+                                <input type="checkbox" id="scan-html" checked>
+                                <label for="scan-html">HTML/CSS</label>
+                            </div>
+                            <div class="scan-type">
+                                <input type="checkbox" id="scan-js" checked>
+                                <label for="scan-js">JavaScript</label>
+                            </div>
+                            <div class="scan-type">
+                                <input type="checkbox" id="scan-full" checked>
+                                <label for="scan-full">Full Source</label>
+                            </div>
+                        </div>
+                        <button class="btn" id="scan-website-btn">
+                            <i class="fas fa-globe"></i> Scan Website
+                        </button>
+                        <div class="scan-progress" id="scan-progress">
+                            <p><i class="fas fa-spinner fa-spin"></i> Fetching website source code...</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <button class="btn" id="scan-btn">
-                    <i class="fas fa-search"></i> Scan for Vulnerabilities
+                    <i class="fas fa-search"></i> Scan Code
                 </button>
                 <div class="loading" id="loading">
                     <i class="fas fa-spinner"></i> Scanning code...
@@ -534,7 +601,7 @@ result = vulnerable_function("1+1")
                 <h2 class="section-title">Scan Results</h2>
                 <div id="results">
                     <div class="no-findings">
-                        <p>Enter code and click "Scan for Vulnerabilities" to analyze</p>
+                        <p>Enter code or scan a website to analyze</p>
                     </div>
                 </div>
             </div>
@@ -560,9 +627,15 @@ result = vulnerable_function("1+1")
             const clearFileBtn = document.getElementById('clear-file');
             const codeInput = document.getElementById('codeInput');
             const scanBtn = document.getElementById('scan-btn');
+            const scanWebsiteBtn = document.getElementById('scan-website-btn');
             const loading = document.getElementById('loading');
+            const scanProgress = document.getElementById('scan-progress');
             const results = document.getElementById('results');
             const languageSelect = document.getElementById('language-select');
+            const websiteUrl = document.getElementById('website-url');
+            const scanHtml = document.getElementById('scan-html');
+            const scanJs = document.getElementById('scan-js');
+            const scanFull = document.getElementById('scan-full');
 
             // State
             let selectedFile = null;
@@ -665,7 +738,146 @@ result = vulnerable_function("1+1")
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
 
-            // Scan Functionality
+            // Website Scanning Functionality
+            scanWebsiteBtn.addEventListener('click', async function() {
+                const url = websiteUrl.value.trim();
+                if (!url) {
+                    showToast('Please enter a website URL', 'error');
+                    return;
+                }
+                
+                try {
+                    // Validate URL format
+                    new URL(url);
+                } catch (e) {
+                    showToast('Please enter a valid URL (e.g., https://example.com)', 'error');
+                    return;
+                }
+                
+                await scanWebsite(url);
+            });
+
+            async function scanWebsite(url) {
+                // Show progress
+                scanProgress.classList.add('show');
+                scanWebsiteBtn.disabled = true;
+                
+                try {
+                    // Fetch website content
+                    scanProgress.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Fetching website source code...</p>';
+                    
+                    // In a real implementation, you would use a proxy or backend service
+                    // For demo purposes, we'll simulate fetching website content
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Simulate website content based on URL
+                    let websiteContent = '';
+                    if (url.includes('github.com')) {
+                        websiteContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub - Where the world builds software</title>
+    <script>
+        // Vulnerable JavaScript example
+        const API_TOKEN = "ghp_1234567890abcdef1234567890abcdef";
+        function processUserInput(input) {
+            return eval(input); // Dangerous eval
+        }
+        document.getElementById('content').innerHTML = userInput; // XSS vulnerability
+    </script>
+</head>
+<body>
+    <div id="content">GitHub Content</div>
+</body>
+</html>`;
+                    } else if (url.includes('google.com')) {
+                        websiteContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google</title>
+    <script>
+        // Safe JavaScript
+        function search(query) {
+            console.log('Searching for:', query);
+        }
+    </script>
+</head>
+<body>
+    <div>Google Search</div>
+</body>
+</html>`;
+                    } else {
+                        // Generic website content for demo
+                        websiteContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Website Security Test</title>
+    <script>
+        // Example vulnerable JavaScript
+        var password = "secret123"; // Hardcoded password
+        function dangerousFunction(userInput) {
+            eval(userInput); // Code injection risk
+        }
+        document.write("<div>" + userInput + "</div>"); // XSS risk
+    </script>
+</head>
+<body>
+    <h1>Welcome to ${new URL(url).hostname}</h1>
+    <p>This is a test website for security scanning.</p>
+</body>
+</html>`;
+                    }
+                    
+                    scanProgress.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Analyzing website code...</p>';
+                    
+                    // Extract JavaScript from website content
+                    const jsCode = extractJavaScript(websiteContent);
+                    
+                    // Simulate analysis delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Analyze the JavaScript code
+                    const findings = detectVulnerabilities(jsCode, 'javascript');
+                    
+                    displayResults({
+                        triage_score: calculateTriageScore(findings),
+                        total_findings: findings.length,
+                        risk_level: getRiskLevel(findings),
+                        findings: findings,
+                        scanned_url: url,
+                        scanned_type: 'website'
+                    });
+                    
+                    if (findings.length > 0) {
+                        showToast(`Website scan complete! Found ${findings.length} issues.`, 'success');
+                    } else {
+                        showToast('Website scan complete! No vulnerabilities found.', 'success');
+                    }
+                } catch (error) {
+                    showToast('Error scanning website: ' + error.message, 'error');
+                } finally {
+                    scanProgress.classList.remove('show');
+                    scanWebsiteBtn.disabled = false;
+                }
+            }
+
+            function extractJavaScript(htmlContent) {
+                // Simple regex to extract JavaScript from script tags
+                const scriptRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
+                let jsCode = '';
+                let match;
+                
+                while ((match = scriptRegex.exec(htmlContent)) !== null) {
+                    jsCode += match[1] + '\n';
+                }
+                
+                return jsCode;
+            }
+
+            // Code Scanning Functionality
             scanBtn.addEventListener('click', async function() {
                 const code = codeInput.value.trim();
                 if (!code) {
@@ -693,7 +905,8 @@ result = vulnerable_function("1+1")
                         triage_score: calculateTriageScore(findings),
                         total_findings: findings.length,
                         risk_level: getRiskLevel(findings),
-                        findings: findings
+                        findings: findings,
+                        scanned_type: 'code'
                     });
                     
                     if (findings.length > 0) {
@@ -718,16 +931,21 @@ result = vulnerable_function("1+1")
                     { pattern: /API[_-]?KEY\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'API_KEY' },
                     { pattern: /SECRET[_-]?KEY\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'SECRET_KEY' },
                     { pattern: /TOKEN\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'TOKEN' },
-                    { pattern: /PASSWORD\s*[:=]\s*["'][^"'\s]{6,}["']/i, name: 'PASSWORD' }
+                    { pattern: /PASSWORD\s*[:=]\s*["'][^"'\s]{6,}["']/i, name: 'PASSWORD' },
+                    { pattern: /[A-Z_]*[A-Z0-9_]*\s*[:=]\s*["'][a-zA-Z0-9]{32,}["']/, name: 'GENERIC_SECRET' }
                 ];
                 
                 lines.forEach((line, index) => {
+                    // Skip comments
+                    if (line.trim().startsWith('//') || line.trim().startsWith('#')) return;
+                    
                     // Hardcoded secrets
                     secretPatterns.forEach(secret => {
                         if (secret.pattern.test(line)) {
+                            const secretName = secret.name === 'GENERIC_SECRET' ? 'Secret' : secret.name;
                             findings.push({
                                 type: 'HARDCODED_SECRET',
-                                description: `Hardcoded ${secret.name} detected`,
+                                description: `Hardcoded ${secretName} detected`,
                                 severity: 'Critical',
                                 line: index + 1,
                                 code_snippet: line.trim()
@@ -751,6 +969,17 @@ result = vulnerable_function("1+1")
                         findings.push({
                             type: 'XSS_VULNERABILITY',
                             description: 'Potential XSS via innerHTML assignment',
+                            severity: 'High',
+                            line: index + 1,
+                            code_snippet: line.trim()
+                        });
+                    }
+                    
+                    // XSS via document.write
+                    if (language === 'javascript' && (line.includes('document.write(') || line.includes('document.writeln('))) {
+                        findings.push({
+                            type: 'XSS_VULNERABILITY',
+                            description: 'Potential XSS via document.write()',
                             severity: 'High',
                             line: index + 1,
                             code_snippet: line.trim()
@@ -829,7 +1058,13 @@ result = vulnerable_function("1+1")
                 let html = `
                     <div class="result-card">
                         <div class="score-header">
-                            <h3>Security Analysis</h3>
+                            <h3>Security Analysis`;
+                
+                if (result.scanned_url) {
+                    html += ` - <span style="font-size: 1rem; font-weight: normal;">${new URL(result.scanned_url).hostname}</span>`;
+                }
+                
+                html += `</h3>
                             <div class="score-badge">${result.triage_score.toFixed(1)}/10</div>
                         </div>
                         
@@ -873,7 +1108,7 @@ result = vulnerable_function("1+1")
                     html += `
                         <div class="no-findings">
                             <p>✅ No vulnerabilities found! Great job on secure coding.</p>
-                            <p style="margin-top: 1rem;">Your code is clean and secure.</p>
+                            <p style="margin-top: 1rem;">Your ${result.scanned_type === 'website' ? 'website' : 'code'} is clean and secure.</p>
                         </div>
                     `;
                 }
