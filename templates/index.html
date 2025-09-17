@@ -3,63 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vulnscanner</title>
+    <title>💀 VULNSCANNER | CYBER SECURITY NEXUS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #7209b7;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --danger: #f44336;
-            --dark: #212121;
-            --light: #f8f9fa;
-            --gray: #6c757d;
-            --border: #dee2e6;
-            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --hover-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+            --neon-green: #39ff14;
+            --neon-red: #ff003c;
+            --neon-orange: #ff5500;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #000000;
+            --card-bg: #111111;
+            --glow-pink: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+            --glow-blue: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+            --glow-green: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+            --glow-red: 0 0 10px var(--neon-red), 0 0 20px var(--neon-red);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Courier New', monospace;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #333;
-            line-height: 1.6;
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
+                repeating-linear-gradient(0deg, rgba(255, 0, 255, 0.05), rgba(255, 0, 255, 0.05) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, rgba(0, 255, 255, 0.05), rgba(0, 255, 255, 0.05) 1px, transparent 1px, transparent 20px);
+            color: #e0e0ff;
             min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Scan lines effect */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 3px
+                );
+            pointer-events: none;
+            z-index: 9999;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 10;
         }
 
         .header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 2rem;
             text-align: center;
-            border-radius: 10px;
+            padding: 2rem 0;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border-bottom: 1px solid var(--neon-pink);
+            box-shadow: var(--glow-pink);
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 4rem;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--glow-pink);
+            margin-bottom: 1rem;
+            letter-spacing: 5px;
+            font-weight: 900;
+            text-transform: uppercase;
         }
 
         .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            font-size: 1.4rem;
+            color: var(--neon-blue);
+            max-width: 800px;
+            margin: 0 auto;
+            text-shadow: var(--glow-blue);
+            letter-spacing: 2px;
         }
+
+        .terminal-bar {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--neon-pink);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            box-shadow: var(--glow-pink);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-bar::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 255, 0.1), transparent);
+            animation: scan-line 3s linear infinite;
+        }
+
+        @keyframes scan-line {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .terminal-title {
+            color: var(--neon-green);
+            font-weight: bold;
+            text-shadow: var(--glow-green);
+        }
+
+        .terminal-controls span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27c93f; }
 
         .main-content {
             display: grid;
@@ -67,31 +156,66 @@
             gap: 2rem;
         }
 
-        @media (min-width: 768px) {
+        @media (min-width: 992px) {
             .main-content {
                 grid-template-columns: 1fr 1fr;
             }
         }
 
         .input-section, .output-section {
-            background: white;
+            background: var(--card-bg);
             border-radius: 10px;
             padding: 2rem;
-            box-shadow: var(--card-shadow);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--neon-pink);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .input-section::before, .output-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue));
+            box-shadow: var(--glow-pink);
         }
 
         .section-title {
-            color: var(--primary);
+            color: var(--neon-pink);
             margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 1px solid rgba(255, 0, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+            text-shadow: var(--glow-pink);
         }
 
-        /* Tab styles */
+        /* Tabs */
         .tabs {
             display: flex;
             margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(255, 0, 255, 0.3);
+            position: relative;
+        }
+
+        .tabs::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 33.33%;
+            height: 3px;
+            background: var(--neon-pink);
+            transition: all 0.3s ease;
+            box-shadow: var(--glow-pink);
         }
 
         .tab-btn {
@@ -99,20 +223,24 @@
             border: none;
             padding: 1rem 2rem;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 500;
-            color: var(--gray);
-            border-bottom: 3px solid transparent;
+            color: #a0a0ff;
             transition: all 0.3s ease;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .tab-btn:hover {
-            color: var(--primary);
+            color: var(--neon-pink);
+            text-shadow: var(--glow-pink);
+            transform: translateY(-2px);
         }
 
         .tab-btn.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
+            color: var(--neon-pink);
+            text-shadow: var(--glow-pink);
         }
 
         .tab-content {
@@ -121,45 +249,66 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.5s ease;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Editor */
         .editor-container {
             margin-bottom: 1.5rem;
+            position: relative;
         }
 
         .editor-header {
-            background: #2d2d2d;
-            color: white;
+            background: rgba(0, 0, 0, 0.9);
+            color: var(--neon-green);
             padding: 0.75rem 1rem;
             border-radius: 5px 5px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid var(--neon-green);
+            border-bottom: none;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
         }
 
         #language-select {
-            background: #404040;
-            color: white;
-            border: none;
+            background: rgba(0, 0, 0, 0.9);
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
             padding: 0.5rem;
             border-radius: 3px;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+            text-shadow: var(--glow-green);
         }
 
         #codeInput {
             width: 100%;
             height: 300px;
             padding: 1.5rem;
-            border: 1px solid var(--border);
+            border: 1px solid var(--neon-pink);
             border-top: none;
             border-radius: 0 0 5px 5px;
             font-family: 'Courier New', monospace;
             font-size: 14px;
             line-height: 1.5;
             resize: vertical;
-            background: #f8f9fa;
+            background: rgba(0, 0, 0, 0.8);
+            color: #e0e0ff;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
         }
 
-        /* Website Scan Tab */
+        #codeInput:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        /* Website Scan */
         .website-scan {
             margin-bottom: 1.5rem;
         }
@@ -167,109 +316,199 @@
         .url-input {
             width: 100%;
             padding: 1rem;
-            border: 1px solid var(--border);
+            border: 1px solid var(--neon-pink);
             border-radius: 5px;
             font-size: 1rem;
             margin-bottom: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: #e0e0ff;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
-        /* Drag and Drop Area */
+        .url-input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: inset 0 0 15px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        /* Upload Area */
         .upload-area {
-            border: 2px dashed var(--border);
+            border: 2px dashed var(--neon-pink);
             border-radius: 10px;
             padding: 2rem;
             text-align: center;
-            background: #f8f9fa;
+            background: rgba(10, 0, 10, 0.7);
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.2);
         }
 
-        .upload-area:hover, .upload-area.drag-over {
-            border-color: var(--primary);
-            background: #e3f2fd;
+        .upload-area:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 10, 10, 0.8);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .upload-area::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 0, 255, 0.2), transparent);
+            transform: rotate(45deg);
+            animation: scan 4s linear infinite;
         }
 
         .upload-icon {
-            font-size: 3rem;
-            color: var(--primary);
+            font-size: 4rem;
+            color: var(--neon-pink);
             margin-bottom: 1rem;
+            text-shadow: var(--glow-pink);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         .browse-btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue));
             color: white;
             padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin: 1rem 0;
-        }
-
-        .browse-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--hover-shadow);
-        }
-
-        .file-info {
-            background: #e3f2fd;
-            padding: 1rem;
-            border-radius: 5px;
-            margin-top: 1rem;
-            display: none;
-        }
-
-        .file-info.show {
-            display: block;
-        }
-
-        .clear-btn {
-            background: var(--gray);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 0.5rem;
-        }
-
-        .clear-btn:hover {
-            background: #5a6268;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 1rem 2rem;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1.1rem;
             font-weight: 500;
             transition: all 0.3s ease;
+            margin: 1rem 0;
+            box-shadow: var(--glow-pink);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .browse-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .browse-btn:hover::before {
+            left: 100%;
+        }
+
+        .browse-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px var(--neon-pink), 0 0 35px var(--neon-blue);
+        }
+
+        .file-info {
+            background: rgba(0, 255, 20, 0.1);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            display: none;
+            border: 1px solid var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 20, 0.3);
+        }
+
+        .file-info.show {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        .clear-btn {
+            background: rgba(255, 0, 60, 0.2);
+            color: var(--neon-red);
+            border: 1px solid var(--neon-red);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 0, 60, 0.3);
+            box-shadow: 0 0 15px var(--neon-red);
+            transform: translateY(-2px);
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue));
+            color: white;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
             width: 100%;
             margin: 1rem 0;
+            box-shadow: var(--glow-pink);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--hover-shadow);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px var(--neon-pink), 0 0 40px var(--neon-blue);
         }
 
         .btn:disabled {
-            opacity: 0.7;
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: var(--glow-pink);
         }
 
         .loading {
             text-align: center;
-            padding: 1rem;
-            color: var(--primary);
-            font-size: 1.2rem;
+            padding: 1.5rem;
+            color: var(--neon-blue);
+            font-size: 1.3rem;
             display: none;
         }
 
@@ -287,12 +526,27 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Results */
         .result-card {
-            background: white;
+            background: rgba(20, 0, 20, 0.8);
             border-radius: 10px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            box-shadow: var(--card-shadow);
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue));
+            box-shadow: var(--glow-pink);
         }
 
         .score-header {
@@ -303,12 +557,21 @@
         }
 
         .score-badge {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue));
             color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
-            font-size: 1.3rem;
+            padding: 0.7rem 2rem;
+            border-radius: 30px;
+            font-size: 1.8rem;
             font-weight: bold;
+            box-shadow: var(--glow-pink);
+            animation: pulse-score 2s infinite;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes pulse-score {
+            0% { box-shadow: var(--glow-pink); }
+            50% { box-shadow: 0 0 30px var(--neon-pink), 0 0 40px var(--neon-blue); }
+            100% { box-shadow: var(--glow-pink); }
         }
 
         .stats-grid {
@@ -320,21 +583,35 @@
 
         .stat-card {
             text-align: center;
-            padding: 1rem;
-            background: #f8f9fa;
+            padding: 1.2rem;
+            background: rgba(10, 0, 10, 0.6);
             border-radius: 8px;
+            border: 1px solid var(--neon-pink);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.3);
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: 2.8rem;
             font-weight: bold;
-            color: var(--primary);
             margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px currentColor;
         }
 
+        .stat-value.critical { color: var(--neon-red); }
+        .stat-value.high { color: var(--neon-orange); }
+        .stat-value.medium { color: var(--neon-blue); }
+        .stat-value.low { color: var(--neon-green); }
+
         .stat-label {
-            color: var(--gray);
-            font-size: 0.9rem;
+            color: #a0a0ff;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .findings-list {
@@ -342,31 +619,55 @@
         }
 
         .finding {
-            border-left: 5px solid var(--gray);
+            border-left: 5px solid #a0a0ff;
             padding: 1.5rem;
             margin-bottom: 1rem;
             border-radius: 0 8px 8px 0;
-            background: #fafafa;
+            background: rgba(30, 0, 30, 0.6);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 0, 255, 0.1);
+        }
+
+        .finding:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border-color: var(--neon-pink);
+        }
+
+        .finding::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 255, 0.5), transparent);
         }
 
         .finding.critical {
-            border-left-color: var(--danger);
-            background: #fff5f5;
+            border-left-color: var(--neon-red);
+            background: rgba(255, 0, 60, 0.08);
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.2);
         }
 
         .finding.high {
-            border-left-color: #ff6b35;
-            background: #fff8f5;
+            border-left-color: var(--neon-orange);
+            background: rgba(255, 85, 0, 0.08);
+            box-shadow: 0 0 15px rgba(255, 85, 0, 0.2);
         }
 
         .finding.medium {
-            border-left-color: var(--warning);
-            background: #fffdf5;
+            border-left-color: var(--neon-blue);
+            background: rgba(0, 255, 255, 0.08);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
         }
 
         .finding.low {
-            border-left-color: var(--success);
-            background: #f5fff8;
+            border-left-color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.08);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
         }
 
         .finding-header {
@@ -377,86 +678,118 @@
         }
 
         .finding-title {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 600;
-            color: var(--dark);
+            color: #e0e0ff;
         }
 
         .severity-badge {
-            padding: 0.25rem 0.75rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .severity-critical {
-            background: #ffebee;
-            color: var(--danger);
+            background: rgba(255, 0, 60, 0.2);
+            color: var(--neon-red);
+            border: 1px solid var(--neon-red);
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.3);
         }
 
         .severity-high {
-            background: #fff3e0;
-            color: #ff6b35;
+            background: rgba(255, 85, 0, 0.2);
+            color: var(--neon-orange);
+            border: 1px solid var(--neon-orange);
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
         }
 
         .severity-medium {
-            background: #fff8e1;
-            color: var(--warning);
+            background: rgba(0, 255, 255, 0.2);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
 
         .severity-low {
-            background: #e8f5e9;
-            color: var(--success);
+            background: rgba(57, 255, 20, 0.2);
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
         }
 
         .finding-details p {
             margin-bottom: 0.5rem;
+            line-height: 1.6;
         }
 
         .code-snippet {
-            background: #2d2d2d;
-            color: #f8f8f2;
+            background: rgba(0, 0, 0, 0.8);
+            color: #39ff14;
             padding: 1rem;
             border-radius: 5px;
             font-family: 'Courier New', monospace;
             font-size: 13px;
             margin-top: 1rem;
             overflow-x: auto;
+            border: 1px solid var(--neon-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
         }
 
         .no-findings {
             text-align: center;
-            padding: 2rem;
-            color: var(--gray);
+            padding: 3rem;
+            color: #a0a0ff;
             font-style: italic;
+        }
+
+        .no-findings i {
+            font-size: 4rem;
+            color: var(--neon-green);
+            margin-bottom: 1rem;
+            text-shadow: var(--glow-green);
+            animation: pulse 3s infinite;
+        }
+
+        .no-findings p {
+            margin: 0.5rem 0;
+            font-size: 1.2rem;
         }
 
         .footer {
             text-align: center;
             padding: 2rem;
-            color: var(--gray);
+            color: #6060a0;
             margin-top: 2rem;
+            border-top: 1px solid rgba(255, 0, 255, 0.2);
+            font-size: 0.9rem;
         }
 
         .toast {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: white;
-            padding: 1rem 1.5rem;
+            background: rgba(20, 0, 20, 0.95);
+            padding: 1.2rem 1.8rem;
             border-radius: 5px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            border-left: 5px solid var(--primary);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border-left: 5px solid var(--neon-pink);
             z-index: 1000;
             animation: slideIn 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 255, 0.3);
         }
 
         .toast.success {
-            border-left-color: var(--success);
+            border-left-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);
         }
 
         .toast.error {
-            border-left-color: var(--danger);
+            border-left-color: var(--neon-red);
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.4);
         }
 
         @keyframes slideIn {
@@ -477,111 +810,244 @@
         .scan-progress {
             margin: 1rem 0;
             padding: 1rem;
-            background: #e3f2fd;
+            background: rgba(0, 255, 255, 0.1);
             border-radius: 5px;
             display: none;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
         }
 
         .scan-progress.show {
             display: block;
         }
+
+        /* Glowing elements */
+        .glow {
+            animation: glow-pulse 2s infinite alternate;
+        }
+
+        @keyframes glow-pulse {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.5) drop-shadow(0 0 10px currentColor); }
+        }
+
+        /* Terminal cursor effect */
+        .terminal-cursor::after {
+            content: "█";
+            animation: blink 1s infinite;
+            color: var(--neon-green);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Scan animation */
+        @keyframes scan-line-vertical {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .scan-animation {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scan-animation::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to bottom, var(--neon-pink), transparent);
+            animation: scan-line-vertical 2s linear infinite;
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        /* Cyber grid background */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
+                repeating-linear-gradient(0deg, rgba(255, 0, 255, 0.05), rgba(255, 0, 255, 0.05) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, rgba(0, 255, 255, 0.05), rgba(0, 255, 255, 0.05) 1px, transparent 1px, transparent 20px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            box-shadow: var(--glow-pink);
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
     </style>
 </head>
 <body>
+    <div class="cyber-grid"></div>
+    <div class="particles" id="particles"></div>
+    
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-shield-alt"></i> Vulnscanner</h1>
-            <p>Automated security analysis for Python, JavaScript, and websites</p>
+            <h1>💀 VULNSCANNER</h1>
+            <p>CYBER SECURITY THREAT INTELLIGENCE NEXUS</p>
+        </div>
+        
+        <div class="terminal-bar">
+            <div class="terminal-title">vulnscanner://system</div>
+            <div class="terminal-controls">
+                <span class="close"></span>
+                <span class="minimize"></span>
+                <span class="maximize"></span>
+            </div>
         </div>
 
         <div class="main-content">
             <div class="input-section">
-                <h2 class="section-title">Code Input</h2>
+                <h2 class="section-title">
+                    <span>THREAT INTEL INPUT</span>
+                    <span class="terminal-cursor"></span>
+                </h2>
                 
                 <!-- Tab Navigation -->
                 <div class="tabs">
-                    <button class="tab-btn active" data-tab="editor">Code Editor</button>
-                    <button class="tab-btn" data-tab="upload">File Upload</button>
-                    <button class="tab-btn" data-tab="website">Website Scan</button>
+                    <button class="tab-btn active" data-tab="editor">CODE TERMINAL</button>
+                    <button class="tab-btn" data-tab="upload">FILE UPLOAD</button>
+                    <button class="tab-btn" data-tab="website">WEB SCAN</button>
                 </div>
                 
                 <!-- Code Editor Tab -->
                 <div id="editor-tab" class="tab-content active">
                     <div class="editor-container">
                         <div class="editor-header">
-                            <span>Code Editor</span>
+                            <span>CODE TERMINAL v2.1</span>
                             <select id="language-select">
-                                <option value="python">Python</option>
-                                <option value="javascript">JavaScript</option>
+                                <option value="python">🐍 PYTHON</option>
+                                <option value="javascript">🌐 JAVASCRIPT</option>
                             </select>
                         </div>
-                        <textarea id="codeInput" placeholder="Paste your code here..."># Enter your code here to scan for vulnerabilities</textarea>
+                        <textarea id="codeInput" placeholder="// ENTER YOUR CODE TO SCAN FOR VULNERABILITIES...
+// SAFE CODE EXAMPLE: print('hello world') = 0.0 RISK
+// DANGEROUS CODE EXAMPLE: eval(userInput) = HIGH RISK"># ENTER YOUR CODE HERE TO SCAN FOR VULNERABILITIES
+# SAFE CODE EXAMPLE: print('hello world') = 0.0 RISK
+# DANGEROUS CODE EXAMPLE: eval(userInput) = HIGH RISK</textarea>
                     </div>
                     <button class="btn" id="scan-code-btn">
-                        <i class="fas fa-search"></i> Scan Code
+                        <i class="fas fa-bolt"></i> INITIATE CODE SCAN
                     </button>
                 </div>
                 
                 <!-- File Upload Tab -->
                 <div id="upload-tab" class="tab-content">
                     <div class="upload-area" id="drop-area">
-                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                        <h3>Drag & Drop your code files here</h3>
-                        <p>Supports .py, .js, and .html files</p>
-                        <p style="color: var(--gray); margin: 1rem 0;">or</p>
+                        <i class="fas fa-skull upload-icon"></i>
+                        <h3>DROP YOUR CODE FILES HERE</h3>
+                        <p>SUPPORTED: .PY, .JS, .HTML</p>
+                        <p style="color: #a0a0ff; margin: 1rem 0;">OR</p>
                         <button class="browse-btn" id="browse-btn">
-                            <i class="fas fa-folder-open"></i> Browse Files
+                            <i class="fas fa-folder-open"></i> BROWSE FILES
                         </button>
                         <input type="file" id="file-input" accept=".py,.js,.html">
                     </div>
                     <div class="file-info" id="file-info">
-                        <h4>Selected File:</h4>
+                        <h4>SELECTED FILE:</h4>
                         <p id="file-name"></p>
-                        <button class="clear-btn" id="clear-file">Clear Selection</button>
+                        <button class="clear-btn" id="clear-file">CLEAR SELECTION</button>
                     </div>
                     <button class="btn" id="scan-file-btn">
-                        <i class="fas fa-file-code"></i> Scan File
+                        <i class="fas fa-file-code"></i> SCAN UPLOADED FILE
                     </button>
                 </div>
                 
                 <!-- Website Scan Tab -->
                 <div id="website-tab" class="tab-content">
                     <div class="website-scan">
-                        <input type="url" id="website-url" class="url-input" placeholder="https://example.com" />
+                        <input type="url" id="website-url" class="url-input" placeholder="HTTPS://TARGET-WEBSITE.COM" />
                         <button class="btn" id="scan-website-btn">
-                            <i class="fas fa-globe"></i> Scan Website
+                            <i class="fas fa-globe"></i> LAUNCH WEB SCAN
                         </button>
                         <div class="scan-progress" id="scan-progress">
-                            <p><i class="fas fa-spinner fa-spin"></i> Scanning website...</p>
+                            <p><i class="fas fa-spinner fa-spin"></i> INITIATING WEB RECONNAISSANCE...</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="loading" id="loading">
-                    <i class="fas fa-spinner"></i> Scanning...
+                    <i class="fas fa-spinner"></i> SCANNING FOR THREATS...
                 </div>
             </div>
 
             <div class="output-section">
-                <h2 class="section-title">Scan Results</h2>
+                <h2 class="section-title">
+                    <span>THREAT ANALYSIS REPORT</span>
+                    <span class="terminal-cursor"></span>
+                </h2>
                 <div id="results">
                     <div class="no-findings">
-                        <p>Enter code, upload a file, or scan a website to analyze</p>
-                        <p style="margin-top: 1rem;">Safe code like <code>print('hello')</code> will show 0 vulnerabilities</p>
+                        <i class="fas fa-shield-alt"></i>
+                        <p>SYSTEM READY FOR THREAT ANALYSIS</p>
+                        <p>ENTER CODE OR SELECT SCAN METHOD TO BEGIN</p>
+                        <p style="margin-top: 1rem; font-size: 1rem; color: var(--neon-green);">
+                            SAFE CODE LIKE <code>print('hello')</code> = 0.0 RISK SCORE
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            <p>Vulnscanner &copy; 2025 | Hackathon Project</p>
+            <p>VULNSCANNER v2.0 | CYBER SECURITY THREAT INTELLIGENCE SYSTEM</p>
+            <p>DEVELOPED FOR HACKATHON | ELITE CODE PROTECTION</p>
         </div>
     </div>
 
     <div id="toast-container"></div>
 
     <script>
+        // Create floating particles
         document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.width = (Math.random() * 3 + 1) + 'px';
+                particle.style.height = particle.style.width;
+                particlesContainer.appendChild(particle);
+            }
+            
             // DOM Elements
             const tabButtons = document.querySelectorAll('.tab-btn');
             const tabContents = document.querySelectorAll('.tab-content');
@@ -650,11 +1116,17 @@
             });
 
             function highlight() {
-                dropArea.classList.add('drag-over');
+                dropArea.style.borderColor = 'var(--neon-blue)';
+                dropArea.style.background = 'rgba(0, 10, 10, 0.9)';
+                dropArea.style.boxShadow = '0 0 40px rgba(0, 255, 255, 0.6)';
+                dropArea.style.transform = 'translateY(-5px)';
             }
 
             function unhighlight() {
-                dropArea.classList.remove('drag-over');
+                dropArea.style.borderColor = 'var(--neon-pink)';
+                dropArea.style.background = 'rgba(10, 0, 10, 0.7)';
+                dropArea.style.boxShadow = '0 0 20px rgba(255, 0, 255, 0.2)';
+                dropArea.style.transform = 'translateY(0)';
             }
 
             // Handle dropped file
@@ -791,9 +1263,9 @@
                     displayResults(data);
                     
                     if (data.total_findings > 0) {
-                        showToast(`Scan complete! Found ${data.total_findings} issues.`, 'success');
+                        showToast(`Scan complete! Found ${data.total_findings} threats.`, 'success');
                     } else {
-                        showToast('Scan complete! No vulnerabilities found.', 'success');
+                        showToast('Scan complete! No threats detected. System secure.', 'success');
                     }
                 } catch (error) {
                     showToast('Error scanning code: ' + error.message, 'error');
@@ -836,9 +1308,9 @@
                     displayResults(data);
                     
                     if (data.total_findings > 0) {
-                        showToast(`File scan complete! Found ${data.total_findings} issues.`, 'success');
+                        showToast(`File scan complete! Found ${data.total_findings} threats.`, 'success');
                     } else {
-                        showToast('File scan complete! No vulnerabilities found.', 'success');
+                        showToast('File scan complete! No threats detected. System secure.', 'success');
                     }
                 } catch (error) {
                     showToast('Error scanning file: ' + error.message, 'error');
@@ -850,28 +1322,28 @@
 
             function displayResults(result) {
                 let html = `
-                    <div class="result-card">
+                    <div class="result-card scan-animation">
                         <div class="score-header">
-                            <h3>Security Analysis`;
+                            <h3>THREAT ANALYSIS REPORT`;
                 
                 if (result.scanned_url) {
-                    html += ` - <span style="font-size: 1rem; font-weight: normal;">${new URL(result.scanned_url).hostname}</span>`;
+                    html += ` <span style="font-size: 1.2rem; font-weight: normal; color: var(--neon-blue);">// ${new URL(result.scanned_url).hostname}</span>`;
                 } else if (result.filename) {
-                    html += ` - <span style="font-size: 1rem; font-weight: normal;">${result.filename}</span>`;
+                    html += ` <span style="font-size: 1.2rem; font-weight: normal; color: var(--neon-blue);">// ${result.filename}</span>`;
                 }
                 
                 html += `</h3>
-                            <div class="score-badge">${result.triage_score}/10</div>
+                            <div class="score-badge glow">${result.triage_score}<span style="font-size: 1.2rem;">/10</span></div>
                         </div>
                         
                         <div class="stats-grid">
                             <div class="stat-card">
-                                <div class="stat-value">${result.total_findings}</div>
-                                <div class="stat-label">Findings</div>
+                                <div class="stat-value ${getRiskClass(result.risk_level)}">${result.total_findings}</div>
+                                <div class="stat-label">THREATS</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-value" style="color: ${getRiskColor(result.risk_level)}">${result.risk_level}</div>
-                                <div class="stat-label">Risk Level</div>
+                                <div class="stat-value ${getRiskClass(result.risk_level)}" style="text-shadow: 0 0 10px currentColor;">${result.risk_level}</div>
+                                <div class="stat-label">RISK LEVEL</div>
                             </div>
                         </div>
                     </div>
@@ -880,7 +1352,7 @@
                 if (result.findings && result.findings.length > 0) {
                     html += `
                         <div class="findings-list">
-                            <h3>Vulnerabilities Found (${result.findings.length})</h3>
+                            <h3>DETECTED THREATS (${result.findings.length})</h3>
                     `;
                     
                     result.findings.forEach(finding => {
@@ -891,8 +1363,8 @@
                                     <span class="severity-badge severity-${finding.severity.toLowerCase()}">${finding.severity}</span>
                                 </div>
                                 <div class="finding-details">
-                                    <p><strong>Description:</strong> ${finding.description}</p>
-                                    <p><strong>Location:</strong> Line ${finding.line || 'N/A'}</p>
+                                    <p><strong>DESCRIPTION:</strong> ${finding.description}</p>
+                                    <p><strong>LOCATION:</strong> Line ${finding.line || 'N/A'}</p>
                                 </div>
                                 ${finding.code_snippet ? `<div class="code-snippet">${escapeHtml(finding.code_snippet)}</div>` : ''}
                             </div>
@@ -903,8 +1375,9 @@
                 } else {
                     html += `
                         <div class="no-findings">
-                            <p>✅ No vulnerabilities found! Great job on secure coding.</p>
-                            <p style="margin-top: 1rem;">Your code is clean and secure.</p>
+                            <i class="fas fa-check-circle" style="color: var(--neon-green);"></i>
+                            <p>✅ SYSTEM SECURE - NO THREATS DETECTED</p>
+                            <p style="margin-top: 1rem; color: var(--neon-green);">YOUR CODE IS CLEAN AND SECURE</p>
                         </div>
                     `;
                 }
@@ -912,12 +1385,13 @@
                 results.innerHTML = html;
             }
 
-            function getRiskColor(riskLevel) {
-                switch(riskLevel) {
-                    case 'Critical': return '#f44336';
-                    case 'High': return '#ff6b35';
-                    case 'Medium': return '#ff9800';
-                    default: return '#4caf50';
+            function getRiskClass(riskLevel) {
+                switch(riskLevel.toLowerCase()) {
+                    case 'critical': return 'critical';
+                    case 'high': return 'high';
+                    case 'medium': return 'medium';
+                    case 'low': return 'low';
+                    default: return 'low';
                 }
             }
 
@@ -934,13 +1408,18 @@
                 const toastContainer = document.getElementById('toast-container');
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
-                toast.textContent = message;
+                toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i> ${message}`;
                 
                 toastContainer.appendChild(toast);
                 
                 setTimeout(() => {
-                    toast.remove();
-                }, 3000);
+                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, 4000);
             }
         });
     </script>
