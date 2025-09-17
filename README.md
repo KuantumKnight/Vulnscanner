@@ -18,14 +18,14 @@ A comprehensive static analysis tool that automatically detects, scores, and pri
 - pip package manager
 
 ### Installation
-bash
+```bash
 git clone https://github.com/KuantumKnight/Vulnscanner.git
 cd Vulnscanner
 pip install -r requirements.txt
 python api.py
-
+```
 ### Usage
-bash
+```bash
 # Basic scan
 python main.py --scan ./samples/
 
@@ -34,7 +34,7 @@ python main.py --scan ./samples/ --ai
 
 # Generate detailed HTML report
 python main.py --scan ./samples/ --report-format html
-
+```
 ### 🛠 How It Works
 #### Detection Methods
 - *Regex Pattern Matching:*  Fast pattern detection for common vulnerabilities
@@ -51,7 +51,7 @@ python main.py --scan ./samples/ --report-format html
 - Dangerous Function Calls
 
 ### 📊 Sample Output
-bash
+```bash
 🔍 Smart Code Vulnerability Triage System
 Scanning: ./samples/vulnerable_python.py
 
@@ -62,9 +62,9 @@ Scanning: ./samples/vulnerable_python.py
 Triage Score: 8.2/10 (High Risk)
 
 Report generated: reports/2024-01-15_vulnerability_report.json
-
+```
 ### 🏗 Architecture
-bash
+```bash
 Input Code → [Regex Scanner] → [AST Analyzer] → [Triage Engine] → [Reporter] → Output
                     ↓              ↓              ↓              ↓
               Pattern Matching  Deep Analysis  Risk Scoring   JSON/HTML
@@ -72,7 +72,7 @@ Input Code → [Regex Scanner] → [AST Analyzer] → [Triage Engine] → [Repor
                             [AI Integration (Optional)]
                                     ↓
                               Enhanced Scoring
-
+```
 ## 🎯 Use Cases
 - *Security Code Reviews:* Automated pre-commit security checks
 - *CI/CD Integration:* Pipeline security scanning
@@ -102,7 +102,7 @@ Inspired by popular SAST tools like Bandit and ESLint
 Powered by Python's AST module and regex capabilities
 AI integration concept based on VulBERT research
 
-bash
+```bash
 smart-code-triage/
 ├── README.md
 ├── requirements.txt
@@ -140,3 +140,4 @@ smart-code-triage/
 └── utils/
     ├── __init__.py
     └── helpers.py
+```
