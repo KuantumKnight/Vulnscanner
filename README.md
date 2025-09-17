@@ -22,6 +22,7 @@ A comprehensive static analysis tool that automatically detects, scores, and pri
 git clone https://github.com/KuantumKnight/Vulnscanner.git
 cd Vulnscanner
 pip install -r requirements.txt
+pyhton api.py
 ```
 ### Usage
 ```bash
@@ -139,4 +140,5 @@ smart-code-triage/
     ├── __init__.py
     └── helpers.py
 ```
+
 
