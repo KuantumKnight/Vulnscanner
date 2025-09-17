@@ -686,75 +686,143 @@ result = vulnerable_function("1+1")
                     // Simulate API delay
                     await new Promise(resolve => setTimeout(resolve, 1500));
                     
-                    // Generate mock results based on the code content
-                    const findings = [];
+                    // Generate accurate mock results based on the code content
+                    const findings = detectVulnerabilities(code, language);
                     
-                    if (code.includes('API_KEY') || code.includes('API_TOKEN')) {
-                        findings.push({
-                            type: 'HARDCODED_SECRET',
-                            description: 'Hardcoded API key or token detected',
-                            severity: 'Critical',
-                            line: code.split('\n').findIndex(line => line.includes('API_KEY') || line.includes('API_TOKEN')) + 1,
-                            code_snippet: code.split('\n').find(line => line.includes('API_KEY') || line.includes('API_TOKEN')) || ''
-                        });
-                    }
-                    
-                    if (code.includes('eval(')) {
-                        findings.push({
-                            type: 'DANGEROUS_EVAL',
-                            description: 'Use of eval() detected - potential code injection',
-                            severity: 'High',
-                            line: code.split('\n').findIndex(line => line.includes('eval(')) + 1,
-                            code_snippet: code.split('\n').find(line => line.includes('eval(')) || ''
-                        });
-                    }
-                    
-                    if (code.includes('innerHTML')) {
-                        findings.push({
-                            type: 'XSS_VULNERABILITY',
-                            description: 'Potential XSS via innerHTML assignment',
-                            severity: 'High',
-                            line: code.split('\n').findIndex(line => line.includes('innerHTML')) + 1,
-                            code_snippet: code.split('\n').find(line => line.includes('innerHTML')) || ''
-                        });
-                    }
-                    
-                    if (code.includes('subprocess.') && code.includes('shell=True')) {
-                        findings.push({
-                            type: 'COMMAND_INJECTION',
-                            description: 'Potential command injection with shell=True',
-                            severity: 'Critical',
-                            line: code.split('\n').findIndex(line => line.includes('shell=True')) + 1,
-                            code_snippet: code.split('\n').find(line => line.includes('shell=True')) || ''
-                        });
-                    }
-
-                    // If no findings, add a generic one for demo
-                    if (findings.length === 0) {
-                        findings.push({
-                            type: 'GENERIC_ISSUE',
-                            description: 'Generic security issue detected',
-                            severity: 'Medium',
-                            line: 1,
-                            code_snippet: code.split('\n')[0] || ''
-                        });
-                    }
-
                     displayResults({
-                        triage_score: findings.length > 0 ? Math.min(10, findings.length * 2.5) : 2.0,
+                        triage_score: calculateTriageScore(findings),
                         total_findings: findings.length,
-                        risk_level: findings.some(f => f.severity === 'Critical') ? 'Critical' : 
-                                   findings.some(f => f.severity === 'High') ? 'High' : 'Medium',
+                        risk_level: getRiskLevel(findings),
                         findings: findings
                     });
                     
-                    showToast(`Scan complete! Found ${findings.length} issues.`, 'success');
+                    if (findings.length > 0) {
+                        showToast(`Scan complete! Found ${findings.length} issues.`, 'success');
+                    } else {
+                        showToast('Scan complete! No vulnerabilities found.', 'success');
+                    }
                 } catch (error) {
                     showToast('Error scanning code: ' + error.message, 'error');
                 } finally {
                     loading.classList.remove('show');
                     scanBtn.disabled = false;
                 }
+            }
+
+            function detectVulnerabilities(code, language) {
+                const findings = [];
+                const lines = code.split('\n');
+                
+                // Check for hardcoded secrets
+                const secretPatterns = [
+                    { pattern: /API[_-]?KEY\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'API_KEY' },
+                    { pattern: /SECRET[_-]?KEY\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'SECRET_KEY' },
+                    { pattern: /TOKEN\s*[:=]\s*["'][^"'\s]{10,}["']/i, name: 'TOKEN' },
+                    { pattern: /PASSWORD\s*[:=]\s*["'][^"'\s]{6,}["']/i, name: 'PASSWORD' }
+                ];
+                
+                lines.forEach((line, index) => {
+                    // Hardcoded secrets
+                    secretPatterns.forEach(secret => {
+                        if (secret.pattern.test(line)) {
+                            findings.push({
+                                type: 'HARDCODED_SECRET',
+                                description: `Hardcoded ${secret.name} detected`,
+                                severity: 'Critical',
+                                line: index + 1,
+                                code_snippet: line.trim()
+                            });
+                        }
+                    });
+                    
+                    // Dangerous eval usage
+                    if (line.includes('eval(') && !line.includes('//') && !line.includes('#')) {
+                        findings.push({
+                            type: 'DANGEROUS_EVAL',
+                            description: 'Use of eval() detected - potential code injection',
+                            severity: 'High',
+                            line: index + 1,
+                            code_snippet: line.trim()
+                        });
+                    }
+                    
+                    // XSS vulnerabilities (JavaScript)
+                    if (language === 'javascript' && line.includes('innerHTML') && line.includes('=')) {
+                        findings.push({
+                            type: 'XSS_VULNERABILITY',
+                            description: 'Potential XSS via innerHTML assignment',
+                            severity: 'High',
+                            line: index + 1,
+                            code_snippet: line.trim()
+                        });
+                    }
+                    
+                    // Command injection (Python)
+                    if (language === 'python' && line.includes('subprocess.') && line.includes('shell=True')) {
+                        findings.push({
+                            type: 'COMMAND_INJECTION',
+                            description: 'Potential command injection with shell=True',
+                            severity: 'Critical',
+                            line: index + 1,
+                            code_snippet: line.trim()
+                        });
+                    }
+                    
+                    // SQL Injection patterns
+                    if ((line.includes('execute') || line.includes('query')) && 
+                        (line.includes('+') || line.includes('format(') || line.includes('%'))) {
+                        findings.push({
+                            type: 'SQL_INJECTION',
+                            description: 'Potential SQL injection via string concatenation',
+                            severity: 'High',
+                            line: index + 1,
+                            code_snippet: line.trim()
+                        });
+                    }
+                    
+                    // Weak crypto
+                    if (line.includes('md5(') || line.includes('sha1(') || line.includes('.md5(') || line.includes('.sha1(')) {
+                        findings.push({
+                            type: 'WEAK_CRYPTO',
+                            description: 'Weak cryptographic algorithm (MD5/SHA1) detected',
+                            severity: 'Medium',
+                            line: index + 1,
+                            code_snippet: line.trim()
+                        });
+                    }
+                });
+                
+                return findings;
+            }
+
+            function calculateTriageScore(findings) {
+                if (findings.length === 0) return 0.0;
+                
+                const severityWeights = {
+                    'Critical': 10,
+                    'High': 7,
+                    'Medium': 4,
+                    'Low': 1
+                };
+                
+                const totalWeight = findings.reduce((sum, finding) => 
+                    sum + (severityWeights[finding.severity] || 1), 0);
+                const maxPossible = findings.length * 10;
+                
+                return (totalWeight / maxPossible) * 10;
+            }
+
+            function getRiskLevel(findings) {
+                if (findings.length === 0) return 'Low';
+                
+                const hasCritical = findings.some(f => f.severity === 'Critical');
+                const hasHigh = findings.some(f => f.severity === 'High');
+                const hasMedium = findings.some(f => f.severity === 'Medium');
+                
+                if (hasCritical) return 'Critical';
+                if (hasHigh) return 'High';
+                if (hasMedium) return 'Medium';
+                return 'Low';
             }
 
             function displayResults(result) {
@@ -805,6 +873,7 @@ result = vulnerable_function("1+1")
                     html += `
                         <div class="no-findings">
                             <p>✅ No vulnerabilities found! Great job on secure coding.</p>
+                            <p style="margin-top: 1rem;">Your code is clean and secure.</p>
                         </div>
                     `;
                 }
