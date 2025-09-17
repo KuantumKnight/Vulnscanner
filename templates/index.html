@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Code Vulnerability Triage System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4361ee;
@@ -82,6 +83,20 @@
             margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--border);
+        }
+
+        /* Tab styles */
+        .tab-btn.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-btn {
+            color: var(--gray);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
         }
 
         .editor-container {
@@ -344,6 +359,14 @@
                 opacity: 1;
             }
         }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content:first-child {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -356,15 +379,24 @@
         <div class="main-content">
             <div class="input-section">
                 <h2 class="section-title">Code Input</h2>
-                <div class="editor-container">
-                    <div class="editor-header">
-                        <span>Code Editor</span>
-                        <select id="language-select">
-                            <option value="python">Python</option>
-                            <option value="javascript">JavaScript</option>
-                        </select>
-                    </div>
-                    <textarea id="codeInput" placeholder="Paste your code here..."># Example vulnerable Python code
+                
+                <!-- Tab Navigation -->
+                <div style="display: flex; margin-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                    <button id="editor-tab" class="tab-btn active" style="padding: 1rem; background: none; border: none; cursor: pointer; font-weight: 500;">Code Editor</button>
+                    <button id="upload-tab" class="tab-btn" style="padding: 1rem; background: none; border: none; cursor: pointer; font-weight: 500;">File Upload</button>
+                </div>
+                
+                <!-- Code Editor Tab -->
+                <div id="editor-content" class="tab-content">
+                    <div class="editor-container">
+                        <div class="editor-header">
+                            <span>Code Editor</span>
+                            <select id="language-select">
+                                <option value="python">Python</option>
+                                <option value="javascript">JavaScript</option>
+                            </select>
+                        </div>
+                        <textarea id="codeInput" placeholder="Paste your code here..."># Example vulnerable Python code
 API_KEY = "sk-1234567890abcdef1234567890abcdef"  # Hardcoded secret
 
 def vulnerable_function(user_input):
@@ -376,7 +408,26 @@ result = vulnerable_function("1+1")
 // const API_TOKEN = "sk-1234567890abcdef1234567890abcdef";
 // document.getElementById('output').innerHTML = userInput;
 // eval(userInput);</textarea>
+                    </div>
                 </div>
+                
+                <!-- File Upload Tab -->
+                <div id="upload-content" class="tab-content" style="display: none;">
+                    <div id="drop-area" style="border: 2px dashed var(--border); border-radius: 10px; padding: 2rem; text-align: center; background: #f8f9fa; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                        <h3>Drag & Drop your code files here</h3>
+                        <p style="color: var(--gray); margin: 1rem 0;">Supports .py and .js files</p>
+                        <p style="color: var(--gray); margin-bottom: 1rem;">or</p>
+                        <button id="browse-btn" class="btn" style="width: auto; display: inline-block;">Browse Files</button>
+                        <input type="file" id="file-input" accept=".py,.js" style="display: none;">
+                    </div>
+                    <div id="file-info" style="margin-top: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 5px; display: none;">
+                        <h4>Selected File:</h4>
+                        <p id="file-name"></p>
+                        <button id="clear-file" style="background: var(--gray); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">Clear</button>
+                    </div>
+                </div>
+                
                 <button id="scanBtn" class="btn">
                     <i class="fas fa-search"></i> Scan for Vulnerabilities
                 </button>
@@ -404,18 +455,148 @@ result = vulnerable_function("1+1")
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            document.getElementById('editor-tab').addEventListener('click', function() {
+                document.getElementById('editor-tab').classList.add('active');
+                document.getElementById('upload-tab').classList.remove('active');
+                document.getElementById('editor-content').style.display = 'block';
+                document.getElementById('upload-content').style.display = 'none';
+            });
+
+            document.getElementById('upload-tab').addEventListener('click', function() {
+                document.getElementById('upload-tab').classList.add('active');
+                document.getElementById('editor-tab').classList.remove('active');
+                document.getElementById('upload-content').style.display = 'block';
+                document.getElementById('editor-content').style.display = 'none';
+            });
+
+            // File upload functionality
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+            const browseBtn = document.getElementById('browse-btn');
+            const fileInfo = document.getElementById('file-info');
+            const fileName = document.getElementById('file-name');
+            const clearFileBtn = document.getElementById('clear-file');
+            let selectedFile = null;
+
+            // Browse button click
+            browseBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            // Drag and drop events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.style.borderColor = 'var(--primary)';
+                dropArea.style.backgroundColor = '#e3f2fd';
+            }
+
+            function unhighlight() {
+                dropArea.style.borderColor = 'var(--border)';
+                dropArea.style.backgroundColor = '#f8f9fa';
+            }
+
+            // Handle dropped file
+            dropArea.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            // Handle file selection
+            function handleFile(file) {
+                if (file.name.endsWith('.py') || file.name.endsWith('.js')) {
+                    selectedFile = file;
+                    fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
+                    fileInfo.style.display = 'block';
+                    
+                    // Auto-read file content
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('codeInput').value = e.target.result;
+                        // Auto-select language based on file extension
+                        const languageSelect = document.getElementById('language-select');
+                        languageSelect.value = file.name.endsWith('.py') ? 'python' : 'javascript';
+                    };
+                    reader.readAsText(file);
+                } else {
+                    showToast('Please select a .py or .js file', 'error');
+                }
+            }
+
+            // Clear selected file
+            clearFileBtn.addEventListener('click', () => {
+                selectedFile = null;
+                fileInfo.style.display = 'none';
+                fileInput.value = '';
+            });
+
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Main functionality
             const scanBtn = document.getElementById('scanBtn');
             const codeInput = document.getElementById('codeInput');
             const resultsDiv = document.getElementById('results');
             const loadingDiv = document.getElementById('loading');
 
             scanBtn.addEventListener('click', async function() {
-                const code = codeInput.value.trim();
-                if (!code) {
-                    showToast('Please enter some code to scan', 'error');
-                    return;
+                const activeTab = document.querySelector('.tab-btn.active').id;
+                
+                if (activeTab === 'editor-tab') {
+                    // Use code from editor
+                    const code = codeInput.value.trim();
+                    if (!code) {
+                        showToast('Please enter some code to scan', 'error');
+                        return;
+                    }
+                    await scanCode(code, document.getElementById('language-select').value);
+                } else {
+                    // Use code from file or editor
+                    const code = codeInput.value.trim();
+                    if (!code) {
+                        showToast('Please select a file or enter code', 'error');
+                        return;
+                    }
+                    const language = selectedFile ? 
+                        (selectedFile.name.endsWith('.py') ? 'python' : 'javascript') :
+                        document.getElementById('language-select').value;
+                    await scanCode(code, language);
                 }
+            });
 
+            async function scanCode(code, language) {
                 // Show loading
                 loadingDiv.style.display = 'block';
                 scanBtn.disabled = true;
@@ -423,16 +604,16 @@ result = vulnerable_function("1+1")
                 try {
                     // In a real implementation, this would call your backend API
                     // For now, we'll simulate the response
-                    await simulateScan(code);
+                    await simulateScan(code, language);
                 } catch (error) {
                     showToast('Error scanning code: ' + error.message, 'error');
                 } finally {
                     loadingDiv.style.display = 'none';
                     scanBtn.disabled = false;
                 }
-            });
+            }
 
-            async function simulateScan(code) {
+            async function simulateScan(code, language) {
                 // Simulate API delay
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
