@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Code Vulnerability Triage System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -86,29 +85,6 @@
             margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .section-title .actions {
-            font-size: 1rem;
-            font-weight: normal;
-        }
-
-        .section-title .actions button {
-            background: none;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 0.25rem 0.75rem;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-left: 0.5rem;
-        }
-
-        .section-title .actions button:hover {
-            background: var(--primary);
-            color: white;
         }
 
         /* Tab styles */
@@ -116,7 +92,6 @@
             display: flex;
             margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--border);
-            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -196,19 +171,6 @@
             border-radius: 5px;
             font-size: 1rem;
             margin-bottom: 1rem;
-        }
-
-        .scan-types {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .scan-type {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
         /* Drag and Drop Area */
@@ -301,17 +263,6 @@
             opacity: 0.7;
             cursor: not-allowed;
             transform: none;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-
-        .btn-group .btn {
-            flex: 1;
-            margin: 0;
         }
 
         .loading {
@@ -534,62 +485,6 @@
         .scan-progress.show {
             display: block;
         }
-
-        /* Dashboard styles */
-        .dashboard {
-            margin-bottom: 2rem;
-        }
-
-        .chart-container {
-            height: 300px;
-            margin-bottom: 2rem;
-        }
-
-        .export-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .export-btn {
-            background: var(--gray);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .export-btn:hover {
-            background: #5a6268;
-        }
-
-        .recent-scans {
-            margin-top: 2rem;
-        }
-
-        .recent-scan-item {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .recent-scan-item:last-child {
-            border-bottom: none;
-        }
-
-        .scan-target {
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .scan-score {
-            float: right;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -601,12 +496,7 @@
 
         <div class="main-content">
             <div class="input-section">
-                <h2 class="section-title">
-                    Scan Input
-                    <div class="actions">
-                        <button id="clear-all-btn"><i class="fas fa-broom"></i> Clear All</button>
-                    </div>
-                </h2>
+                <h2 class="section-title">Code Input</h2>
                 
                 <!-- Tab Navigation -->
                 <div class="tabs">
@@ -625,18 +515,7 @@
                                 <option value="javascript">JavaScript</option>
                             </select>
                         </div>
-                        <textarea id="codeInput" placeholder="Paste your code here..."># Example vulnerable Python code
-API_KEY = "sk-1234567890abcdef1234567890abcdef"  # Hardcoded secret
-
-def vulnerable_function(user_input):
-    return eval(user_input)  # Dangerous eval
-
-result = vulnerable_function("1+1")
-
-# Example vulnerable JavaScript code
-// const API_TOKEN = "sk-1234567890abcdef1234567890abcdef";
-// document.getElementById('output').innerHTML = userInput;
-// eval(userInput);</textarea>
+                        <textarea id="codeInput" placeholder="Paste your code here..."># Enter your code here to scan for vulnerabilities</textarea>
                     </div>
                     <button class="btn" id="scan-code-btn">
                         <i class="fas fa-search"></i> Scan Code
@@ -669,25 +548,11 @@ result = vulnerable_function("1+1")
                 <div id="website-tab" class="tab-content">
                     <div class="website-scan">
                         <input type="url" id="website-url" class="url-input" placeholder="https://example.com" />
-                        <div class="scan-types">
-                            <div class="scan-type">
-                                <input type="checkbox" id="scan-html" checked>
-                                <label for="scan-html">HTML/CSS</label>
-                            </div>
-                            <div class="scan-type">
-                                <input type="checkbox" id="scan-js" checked>
-                                <label for="scan-js">JavaScript</label>
-                            </div>
-                            <div class="scan-type">
-                                <input type="checkbox" id="scan-full" checked>
-                                <label for="scan-full">Full Source</label>
-                            </div>
-                        </div>
                         <button class="btn" id="scan-website-btn">
                             <i class="fas fa-globe"></i> Scan Website
                         </button>
                         <div class="scan-progress" id="scan-progress">
-                            <p><i class="fas fa-spinner fa-spin"></i> Fetching website source code...</p>
+                            <p><i class="fas fa-spinner fa-spin"></i> Scanning website...</p>
                         </div>
                     </div>
                 </div>
@@ -698,60 +563,11 @@ result = vulnerable_function("1+1")
             </div>
 
             <div class="output-section">
-                <h2 class="section-title">
-                    Scan Results
-                    <div class="actions">
-                        <button id="export-json-btn"><i class="fas fa-file-code"></i> JSON</button>
-                        <button id="export-txt-btn"><i class="fas fa-file-alt"></i> TXT</button>
-                    </div>
-                </h2>
-                
-                <!-- Dashboard Summary -->
-                <div class="dashboard">
-                    <div class="chart-container">
-                        <canvas id="vulnerabilityChart"></canvas>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-scans">127</div>
-                            <div class="stat-label">Total Scans</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="vulns-found">45</div>
-                            <div class="stat-label">Vulnerabilities</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="critical-count">8</div>
-                            <div class="stat-label">Critical Issues</div>
-                        </div>
-                    </div>
-                </div>
-                
+                <h2 class="section-title">Scan Results</h2>
                 <div id="results">
                     <div class="no-findings">
                         <p>Enter code, upload a file, or scan a website to analyze</p>
                         <p style="margin-top: 1rem;">Safe code like <code>print('hello')</code> will show 0 vulnerabilities</p>
-                    </div>
-                </div>
-                
-                <div class="recent-scans">
-                    <h3>Recent Scans</h3>
-                    <div id="recent-scans-list">
-                        <div class="recent-scan-item">
-                            <span class="scan-target">github.com</span>
-                            <span class="scan-score">7.2/10</span>
-                            <div style="font-size: 0.9rem; color: var(--gray);">2024-01-15</div>
-                        </div>
-                        <div class="recent-scan-item">
-                            <span class="scan-target">test.py</span>
-                            <span class="scan-score">2.1/10</span>
-                            <div style="font-size: 0.9rem; color: var(--gray);">2024-01-14</div>
-                        </div>
-                        <div class="recent-scan-item">
-                            <span class="scan-target">example.com</span>
-                            <span class="scan-score">4.5/10</span>
-                            <div style="font-size: 0.9rem; color: var(--gray);">2024-01-13</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -784,17 +600,9 @@ result = vulnerable_function("1+1")
             const results = document.getElementById('results');
             const languageSelect = document.getElementById('language-select');
             const websiteUrl = document.getElementById('website-url');
-            const clearAllBtn = document.getElementById('clear-all-btn');
-            const exportJsonBtn = document.getElementById('export-json-btn');
-            const exportTxtBtn = document.getElementById('export-txt-btn');
 
             // State
             let selectedFile = null;
-            let currentResults = null;
-            let chart = null;
-
-            // Initialize dashboard chart
-            initializeChart();
 
             // Tab Switching
             tabButtons.forEach(button => {
@@ -889,25 +697,6 @@ result = vulnerable_function("1+1")
                 fileInput.value = '';
             });
 
-            // Clear all inputs
-            clearAllBtn.addEventListener('click', () => {
-                codeInput.value = '';
-                websiteUrl.value = '';
-                selectedFile = null;
-                fileInfo.classList.remove('show');
-                fileInput.value = '';
-                results.innerHTML = `
-                    <div class="no-findings">
-                        <p>Enter code, upload a file, or scan a website to analyze</p>
-                        <p style="margin-top: 1rem;">Safe code like <code>print('hello')</code> will show 0 vulnerabilities</p>
-                    </div>
-                `;
-                if (chart) {
-                    chart.data.datasets[0].data = [0, 0, 0, 0];
-                    chart.update();
-                }
-            });
-
             // Format file size
             function formatFileSize(bytes) {
                 if (bytes === 0) return '0 Bytes';
@@ -956,10 +745,8 @@ result = vulnerable_function("1+1")
                     }
                     
                     const data = await response.json();
-                    currentResults = data;
                     displayResults(data);
-                    updateChart(data.findings);
-                    showToast(`Website scan complete! Found ${data.total_findings} issues.`, 'success');
+                    showToast('Website scan complete!', 'success');
                     
                 } catch (error) {
                     showToast('Error scanning website: ' + error.message, 'error');
@@ -1001,9 +788,7 @@ result = vulnerable_function("1+1")
                     }
                     
                     const data = await response.json();
-                    currentResults = data;
                     displayResults(data);
-                    updateChart(data.findings);
                     
                     if (data.total_findings > 0) {
                         showToast(`Scan complete! Found ${data.total_findings} issues.`, 'success');
@@ -1048,9 +833,7 @@ result = vulnerable_function("1+1")
                     }
                     
                     const data = await response.json();
-                    currentResults = data;
                     displayResults(data);
-                    updateChart(data.findings);
                     
                     if (data.total_findings > 0) {
                         showToast(`File scan complete! Found ${data.total_findings} issues.`, 'success');
@@ -1158,146 +941,6 @@ result = vulnerable_function("1+1")
                 setTimeout(() => {
                     toast.remove();
                 }, 3000);
-            }
-
-            // Chart functionality
-            function initializeChart() {
-                const ctx = document.getElementById('vulnerabilityChart').getContext('2d');
-                chart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Critical', 'High', 'Medium', 'Low'],
-                        datasets: [{
-                            data: [0, 0, 0, 0],
-                            backgroundColor: ['#f44336', '#ff6b35', '#ff9800', '#4caf50']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
-            }
-
-            function updateChart(findings) {
-                if (!chart || !findings) return;
-                
-                const counts = {
-                    'Critical': 0,
-                    'High': 0,
-                    'Medium': 0,
-                    'Low': 0
-                };
-                
-                findings.forEach(finding => {
-                    if (counts[finding.severity] !== undefined) {
-                        counts[finding.severity]++;
-                    }
-                });
-                
-                chart.data.datasets[0].data = [
-                    counts['Critical'],
-                    counts['High'],
-                    counts['Medium'],
-                    counts['Low']
-                ];
-                chart.update();
-            }
-
-            // Export functionality
-            exportJsonBtn.addEventListener('click', () => {
-                if (!currentResults) {
-                    showToast('No results to export', 'error');
-                    return;
-                }
-                exportResults('json');
-            });
-
-            exportTxtBtn.addEventListener('click', () => {
-                if (!currentResults) {
-                    showToast('No results to export', 'error');
-                    return;
-                }
-                exportResults('txt');
-            });
-
-            function exportResults(format) {
-                if (!currentResults) return;
-                
-                let content, filename, mimeType;
-                
-                if (format === 'json') {
-                    content = JSON.stringify(currentResults, null, 2);
-                    filename = 'vulnerability-report.json';
-                    mimeType = 'application/json';
-                } else {
-                    content = formatResultsAsText(currentResults);
-                    filename = 'vulnerability-report.txt';
-                    mimeType = 'text/plain';
-                }
-                
-                const blob = new Blob([content], {type: mimeType});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast(`Report exported as ${filename}`, 'success');
-            }
-
-            function formatResultsAsText(results) {
-                let text = `VULNERABILITY SCAN REPORT\n`;
-                text += `========================\n\n`;
-                text += `Scan Date: ${new Date().toISOString()}\n`;
-                text += `Triage Score: ${results.triage_score}/10\n`;
-                text += `Total Findings: ${results.total_findings}\n`;
-                text += `Risk Level: ${results.risk_level}\n\n`;
-                
-                if (results.findings && results.findings.length > 0) {
-                    text += `DETECTED VULNERABILITIES:\n`;
-                    text += `------------------------\n\n`;
-                    
-                    results.findings.forEach((finding, index) => {
-                        text += `${index + 1}. ${finding.type.replace(/_/g, ' ')}\n`;
-                        text += `   Severity: ${finding.severity}\n`;
-                        text += `   Description: ${finding.description}\n`;
-                        text += `   Location: Line ${finding.line || 'N/A'}\n`;
-                        if (finding.code_snippet) {
-                            text += `   Code: ${finding.code_snippet}\n`;
-                        }
-                        text += `\n`;
-                    });
-                } else {
-                    text += `No vulnerabilities found. Code is secure.\n`;
-                }
-                
-                return text;
-            }
-
-            // Load dashboard stats
-            loadDashboardStats();
-            
-            async function loadDashboardStats() {
-                try {
-                    const response = await fetch('/api/dashboard-stats');
-                    if (response.ok) {
-                        const stats = await response.json();
-                        document.getElementById('total-scans').textContent = stats.total_scans;
-                        document.getElementById('vulns-found').textContent = stats.vulnerabilities_found;
-                        document.getElementById('critical-count').textContent = stats.critical_issues;
-                    }
-                } catch (error) {
-                    console.log('Failed to load dashboard stats');
-                }
             }
         });
     </script>
