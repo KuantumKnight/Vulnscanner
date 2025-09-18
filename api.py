@@ -42,7 +42,7 @@ def show_ascii_art():
         "All systems operational!",
         "Starting web interface..."
     ]
-    
+    time.sleep(1.5)
     # Clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
     
@@ -52,7 +52,7 @@ def show_ascii_art():
     print("\033[96mVULNSCANNER v2.0 - ADVANCED CODE VULNERABILITY DETECTION SYSTEM\033[0m")
     print("\033[94m" + "="*100 + "\033[0m\n")
 
-    time.sleep(1.5)        
+            
     
     print("\n\033[92m✓ System initialization complete!\033[0m")
     print("\033[96m✓ Web interface available at: http://localhost:5000\033[0m")
