@@ -29,9 +29,6 @@ python api.py
 # Basic scan
 python main.py --scan ./samples/
 
-# Scan with AI integration
-python main.py --scan ./samples/ --ai
-
 # Generate detailed HTML report
 python main.py --scan ./samples/ --report-format html
 ```
@@ -50,29 +47,6 @@ python main.py --scan ./samples/ --report-format html
 - Weak Cryptography
 - Dangerous Function Calls
 
-### 📊 Sample Output
-```bash
-🔍 Smart Code Vulnerability Triage System
-Scanning: ./samples/vulnerable_python.py
-
-🚨 CRITICAL: Hardcoded API key detected (Line 15)
-🚨 HIGH: SQL Injection via string concatenation (Line 23)
-⚠  MEDIUM: Weak cryptographic algorithm (Line 31)
-
-Triage Score: 8.2/10 (High Risk)
-
-Report generated: reports/2024-01-15_vulnerability_report.json
-```
-### 🏗 Architecture
-```bash
-Input Code → [Regex Scanner] → [AST Analyzer] → [Triage Engine] → [Reporter] → Output
-                    ↓              ↓              ↓              ↓
-              Pattern Matching  Deep Analysis  Risk Scoring   JSON/HTML
-                    ↓              ↓              ↓              ↓
-                            [AI Integration (Optional)]
-                                    ↓
-                              Enhanced Scoring
-```
 ## 🎯 Use Cases
 - *Security Code Reviews:* Automated pre-commit security checks
 - *CI/CD Integration:* Pipeline security scanning
@@ -80,7 +54,7 @@ Input Code → [Regex Scanner] → [AST Analyzer] → [Triage Engine] → [Repor
 - *Hackathon Projects:* Rapid security assessment for prototypes
 ## 👥 Team
 - Sarvesh M (25BCE5743)
-- Jaydon D (25BCE5725)
+- Jaydon JP (25BCE5725)
 - Narain R K (25BCE1277)
 - Saineeraj Saravanan (25BCE1066)
 - Hariharan H (25BCE1311)
@@ -100,44 +74,3 @@ Input Code → [Regex Scanner] → [AST Analyzer] → [Triage Engine] → [Repor
 
 Inspired by popular SAST tools like Bandit and ESLint
 Powered by Python's AST module and regex capabilities
-AI integration concept based on VulBERT research
-
-```bash
-smart-code-triage/
-├── README.md
-├── requirements.txt
-├── main.py
-├── config/
-│   └── settings.py
-├── rules/
-│   ├── __init__.py
-│   ├── regex_rules.py
-│   └── severity_weights.py
-├── analyzers/
-│   ├── __init__.py
-│   ├── regex_scanner.py
-│   ├── ast_analyzer.py
-│   └── javascript_analyzer.py
-├── core/
-│   ├── __init__.py
-│   ├── scanner.py
-│   ├── triage_engine.py
-│   └── reporter.py
-├── ai_integration/
-│   ├── __init__.py
-│   └── vulberta_integration.py
-├── templates/
-│   └── report_template.html
-├── reports/
-│   └── .gitkeep
-├── samples/
-│   ├── vulnerable_python.py
-│   └── vulnerable_javascript.js
-├── tests/
-│   ├── __init__.py
-│   ├── test_scanner.py
-│   └── test_analyzers.py
-└── utils/
-    ├── __init__.py
-    └── helpers.py
-```
