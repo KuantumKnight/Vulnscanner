@@ -38,13 +38,7 @@ def show_ascii_art():
     
     loading_messages = [
         "Initializing Vulnscanner Core Engine...",
-        "Loading security vulnerability patterns...",
-        "Connecting to threat intelligence database...",
         "Loading detection modules: SQLi, XSS, CSRF, RCE...",
-        "Initializing static analysis engine...",
-        "Loading language parsers: Python, JavaScript, Java...",
-        "Establishing secure connection protocols...",
-        "Running system diagnostics...",
         "All systems operational!",
         "Starting web interface..."
     ]
@@ -58,13 +52,6 @@ def show_ascii_art():
     print("\033[96mVULNSCANNER v2.0 - ADVANCED CODE VULNERABILITY DETECTION SYSTEM\033[0m")
     print("\033[94m" + "="*100 + "\033[0m\n")
     
-    # Simulate loading process
-    for i, message in enumerate(loading_messages):
-        # Progress bar
-        progress = int((i + 1) / len(loading_messages) * 20)
-        bar = "█" * progress + "░" * (20 - progress)
-        print(f"\033[93m[{bar}] {(i+1)*5}%\033[0m - \033[92m{message}\033[0m")
-        time.sleep(0.3)  # Simulate loading time
     
     print("\n\033[92m✓ System initialization complete!\033[0m")
     print("\033[96m✓ Web interface available at: http://localhost:5000\033[0m")
