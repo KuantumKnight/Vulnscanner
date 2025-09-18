@@ -1,6 +1,9 @@
 # 🔍 Vulnscanner
 A comprehensive static analysis tool that automatically detects, scores, and prioritizes security vulnerabilities in Python and JavaScript code using regex patterns, AST analysis, and optional AI integration.
-<img width="1280" height="709" alt="image" src="https://github.com/user-attachments/assets/c77f28ab-c414-48ab-b8ba-9ffada4aac91" />
+![WhatsApp Image 2025-09-18 at 05 21 32_1f96f373](https://github.com/user-attachments/assets/096925d4-3fa8-46c1-b872-5f607f85f921)
+<img width="1734" height="927" alt="image" src="https://github.com/user-attachments/assets/c97ff6b0-8afc-4f6d-b198-dc88ff99aedb" />
+
+
 
 ## 🌟 *Features*
 
@@ -74,3 +77,4 @@ python main.py --scan ./samples/ --report-format html
 
 Inspired by popular SAST tools like Bandit and ESLint
 Powered by Python's AST module and regex capabilities
+
