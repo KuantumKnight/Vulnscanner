@@ -35,7 +35,7 @@ python main.py --scan ./samples/
 # Generate detailed HTML report
 python main.py --scan ./samples/ --report-format html
 ```
-### 🛠 How It Works
+###  How It Works
 #### Detection Methods
 - *Regex Pattern Matching:*  Fast pattern detection for common vulnerabilities
 - *AST Analysis:*  Deep code structure analysis for complex vulnerabilities
@@ -77,6 +77,7 @@ python main.py --scan ./samples/ --report-format html
 
 Inspired by popular SAST tools like Bandit and ESLint
 Powered by Python's AST module and regex capabilities
+
 
 
 
